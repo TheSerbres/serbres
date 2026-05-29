@@ -63,56 +63,300 @@ export const cv = {
       desc: "Web apps built to turn ideas into things people can actually use.",
     },
   ],
-  // Experience timeline — newest first. Edit freely.
-  timeline: [
-    {
-      period: "Present",
-      role: "Founder & Creator",
-      org: "SERBRES",
-      desc: "Building and operating every property under the SERBRES mark.",
-    },
-    {
-      period: "2024 – Present",
-      role: "Manager of Software Development",
-      org: "CATALIS",
-      desc: "Leading and managing a software development team — delivery, team leadership, and mentorship.",
-    },
-    {
-      period: "2016 – 2025",
-      role: "Software Engineer",
-      org: "AutoMon",
-      desc: "Grew over eight years from software support into engineering — support representative to team lead, support manager, then software engineer — building in C# and Angular.",
-    },
-    {
-      period: "2016",
-      role: "Inside Sales Assistant",
-      org: "The Antigua Group",
-      desc: "Supported the sales team — entering sales data and processing returns and credit memos.",
-    },
-    {
-      period: "2016",
-      role: "Software Development Intern",
-      org: "American Express Global Business Travel",
-      desc: "Full-stack engineering intern, building across front-end and back-end alongside interns and senior developers.",
-    },
-    {
-      period: "2013 – 2015",
-      role: "Sales Representative",
-      org: "State Farm",
-      desc: "Property & Casualty–licensed sales in the Customer Care Center — quoting and securing new policies on inbound calls.",
-    },
-  ],
   // Skills / tools — shown as tags.
   skills: [
+    "Team Leadership",
+    "Software Engineering",
+    "C#",
+    "Angular",
+    "SQL",
+    "TypeScript",
+    "Business Intelligence",
+    "Data Visualization",
+    "Web Development",
     "Blender",
     "SVG / Vector Design",
+    "Cartography",
     "Worldbuilding",
     "Writing",
-    "Web Development",
     "Video Editing",
-    "Cartography",
+    "Claude Code",
   ],
 } as const;
+
+// ---------------------------------------------------------------------------
+// /about — the journey (story-focused, chronological, oldest → newest)
+// Each chapter is a beat in the story. `roles` and `education` hold the formal
+// résumé details revealed behind an expander. Drop a photo in /public/about and
+// point the matching `image.src` at it — until the file exists, a captioned
+// placeholder shows in its place.
+// ---------------------------------------------------------------------------
+export const journey = [
+  {
+    id: "second-chance",
+    era: "2009",
+    title: "A label, and a second chance",
+    narrative: [
+      "As a teenager I got into trouble. The system labeled me an at-risk youth — which, stripped of the stigma, really just meant that with the right intervention I could still get onto a good path.",
+      "That intervention came through the Valley of the Sun YMCA. Its Evening Reporting Center — a detention-alternative program run with the behavioral-health provider PSA Art Awakenings — gave me mentors and a room full of people fighting the same fight. I finished the program, and then they hired me back as a paid graduate to help run it.",
+    ],
+    image: {
+      src: "/about/dream-center.jpg",
+      alt: "The Dream Center",
+      caption: "The Dream Center — where the turnaround started.",
+    },
+    roles: [
+      {
+        title: "Program Assistant",
+        org: "Valley of the Sun YMCA",
+        type: "Seasonal",
+        period: "Jun 2009 – Aug 2009",
+        location: "Greater Phoenix Area",
+        desc: "As a senior in high school, assisted the Program Coordinator — preparing curriculum materials for weekly lesson plans and tracking, monitoring, and evaluating participant performance while serving as a peer mentor.",
+        skills: [
+          "Public Relations",
+          "Community Outreach",
+          "Event Planning",
+          "Fundraising",
+          "Nonprofits",
+          "Microsoft Office",
+        ],
+      },
+    ],
+  },
+  {
+    id: "first-to-graduate",
+    era: "2008 – 2009",
+    title: "First in my family to graduate",
+    narrative: [
+      "I graduated from Cactus High School — the first of my siblings to earn a diploma. We walked in the Cardinals' stadium in Glendale, and crossing that stage felt like proof that the redirect had taken hold.",
+    ],
+    image: {
+      src: "/about/graduation-glendale.jpg",
+      alt: "Graduation at the stadium in Glendale",
+      caption: "Graduation day — the stadium in Glendale.",
+    },
+    education: [
+      {
+        school: "Cactus High School",
+        credential: "High School Diploma",
+        period: "2008 – 2009",
+      },
+    ],
+  },
+  {
+    id: "on-my-own",
+    era: "2010",
+    title: "Standing on my own",
+    narrative: [
+      "Independence arrived early, and I learned to put work first. My first real job was at Blockbuster — running the register, taking care of customers, keeping inventory straight, and helping train the new hires.",
+    ],
+    roles: [
+      {
+        title: "Customer Service Representative",
+        org: "Blockbuster",
+        period: "May 2010 – Dec 2010",
+        location: "Greater Phoenix Area",
+        desc: "Handled cash-register and customer transactions, resolved customer needs and concerns, kept inventory, and assisted in training and developing new employees.",
+        skills: ["Customer Service", "Training"],
+      },
+    ],
+  },
+  {
+    id: "giving-it-back",
+    era: "2011 – 2013",
+    title: "Giving it back",
+    narrative: [
+      "Then I went back — this time to work for Meghan McGilvra, the mentor who had run the very programs that turned me around. Returning to the Valley of the Sun YMCA as a Case Manager and Program Coordinator let me do for other kids what someone once did for me.",
+      "I carried a caseload of at-risk youth and worked to clear every barrier between them and their success. I also ran programs end to end — planning fundraising events and community-service projects, recruiting volunteers from schools and community organizations, and managing budgets against contract requirements. I spoke at Strong Kids Campaign and Heritage Club events, telling the story from the inside.",
+    ],
+    roles: [
+      {
+        title: "Case Manager / Program Coordinator",
+        org: "Valley of the Sun YMCA",
+        type: "Full-time",
+        period: "Jan 2011 – Dec 2013",
+        location: "Greater Phoenix Area",
+        desc: "Maintained a caseload of at-risk youth and worked to remove barriers to their success. Coordinated multiple programs — planning fundraising events and community-service projects, recruiting student and adult volunteers, and maintaining budgets in line with contract requirements.",
+        skills: [
+          "Public Speaking",
+          "Program Development",
+          "Fundraising",
+          "Volunteer Management",
+          "Community Outreach",
+          "Event Planning",
+          "Nonprofits",
+          "Training",
+        ],
+      },
+    ],
+  },
+  {
+    id: "learning-to-sell",
+    era: "2013 – 2015",
+    title: "Learning to sell",
+    narrative: [
+      "I wanted to understand how business actually works, so I went to learn sales at State Farm. On the Customer Care Center team I earned and kept a Property & Casualty license across several states and spent my days on inbound calls — quoting and securing new policies and helping policyholders with information, advice, and changes.",
+      "It taught me how to listen, how to earn trust quickly, and how to be genuinely useful to someone in a five-minute window.",
+    ],
+    roles: [
+      {
+        title: "CCC Sales Representative",
+        org: "State Farm",
+        period: "Oct 2013 – Nov 2015",
+        location: "Greater Phoenix Area",
+        desc: "As part of the Customer Care Center sales team, obtained and maintained a Property & Casualty license in multiple states, answered inbound calls to quote and secure new policies, and assisted policyholders with information, advice, and policy changes.",
+        skills: ["Sales", "Property & Casualty Insurance", "Customer Service"],
+      },
+    ],
+  },
+  {
+    id: "all-in-on-tech",
+    era: "2015 – 2018",
+    title: "All in on a new career",
+    narrative: [
+      "While I was at State Farm I started Year Up — a tuition-free program that puts young adults through a year of technical training and a real internship. For a while I was Mr. No-Days-Off, stacking school on top of full-time work. Eventually I bet on myself, went all in on the program, and saw it through to the internship.",
+      "GateWay Community College came first — a Computer Information Systems certificate, a 3.8 GPA, and my first real grounding in web development, Java, and object-oriented programming. The Year Up internship landed me at American Express Global Business Travel as a full-stack engineering intern, where I learned to build a feature end to end alongside fellow interns and senior developers. I kept going afterward and finished my Associate of Applied Science in CIS at Phoenix College.",
+    ],
+    image: {
+      src: "/about/year-up.jpg",
+      alt: "The all-in bet on a career in software",
+      caption: "Betting on the work — the discipline that carries into everything I build.",
+    },
+    roles: [
+      {
+        title: "Software Development Intern",
+        org: "American Express Global Business Travel",
+        type: "Internship",
+        period: "Jan 2016 – Jul 2016",
+        location: "Greater Phoenix Area",
+        desc: "A full-stack engineering intern working across front-end and back-end on a team of interns and senior developers — where I learned to build a feature end to end.",
+        skills: ["Java", "HTML", "SQL", "JSON", "Apache Tomcat"],
+      },
+    ],
+    education: [
+      {
+        school: "GateWay Community College",
+        credential: "Certificate of Completion, Computer Information Systems",
+        period: "2015 – 2016",
+        grade: "3.8 GPA",
+        detail:
+          "Web Development, Java I & II, Object-Oriented Programming, Linux, and Microsoft Office.",
+      },
+      {
+        school: "Phoenix College",
+        credential: "Associate in Applied Science, Computer Information Systems",
+        period: "2016 – 2018",
+        detail:
+          "C#, Local Area Networks, Accounting, and Business Communications.",
+      },
+    ],
+  },
+  {
+    id: "bridge",
+    era: "2016",
+    title: "A bridge to the field",
+    narrative: [
+      "New degree in hand, I took a temporary role at The Antigua Group to keep moving while I looked for work in software.",
+    ],
+    roles: [
+      {
+        title: "Inside Sales Assistant",
+        org: "The Antigua Group, Inc.",
+        type: "Temporary",
+        period: "Jul 2016 – Dec 2016",
+        location: "Greater Phoenix Area",
+        desc: "A temporary sales-team assistant — confirming and entering sales information into the company database, processing product returns and credit memos, and providing fast help with customer questions and requests.",
+        skills: ["Customer Service", "Microsoft Excel", "Microsoft Office"],
+      },
+    ],
+  },
+  {
+    id: "automon",
+    era: "2016 – 2025",
+    title: "Finding a home at AutoMon",
+    narrative: [
+      "AutoMon is where it all came together — a small company full of good people who genuinely celebrated each other's wins. The kind of place where you build long relationships and grow.",
+      "I started on the customer-facing support team, tracking down the root cause of software issues. From there I stepped into leading and training the support team, then started writing code on the development team through paired programming and bug fixes. When my predecessor moved up, leadership took me to dinner at Houston's and asked me to run the support department. A few years later I made the jump I had been working toward and became a full-time Software Engineer — building in C#, Angular, and SQL, with a real focus on business intelligence, dashboards, and visualization.",
+    ],
+    roles: [
+      {
+        title: "Software Engineer",
+        org: "AutoMon",
+        type: "Full-time",
+        period: "May 2021 – Feb 2025",
+        desc: "Full-time software engineer building in C# and Angular against SQL, with a focus on business intelligence, dashboards, and data visualization.",
+        skills: [
+          "C#",
+          "Angular",
+          "SQL",
+          "Business Intelligence (BI)",
+          "Dashboards",
+          "Data Visualization",
+        ],
+      },
+      {
+        title: "Software Support Manager",
+        org: "AutoMon",
+        period: "Mar 2020 – May 2021",
+        desc: "Managed and trained a team of support representatives and developers, coordinating with department heads to deliver the best overall experience for customers and staff.",
+        skills: [
+          "Team Management",
+          "Team Leadership",
+          "Escalation Resolution",
+          "Customer Service",
+          "Training",
+        ],
+      },
+      {
+        title: "Software Support Developer",
+        org: "AutoMon",
+        period: "Jul 2019 – May 2021",
+        desc: "Joined the development team — learning the codebase, shipping small bug fixes, and pairing with mid-level and senior developers.",
+        skills: ["C#", "Angular", "SQL", "JSON"],
+      },
+      {
+        title: "Software Support Team Lead",
+        org: "AutoMon",
+        period: "Feb 2019 – Mar 2020",
+        desc: "Helped manage and train a team of software support representatives.",
+        skills: ["Team Leadership", "Customer Service", "Training"],
+      },
+      {
+        title: "Software Support Representative",
+        org: "AutoMon",
+        period: "Dec 2016 – Feb 2019",
+        desc: "On a customer-facing support team, handled software requests by identifying root causes, implementing fixes, and escalating priority issues per client specifications.",
+        skills: ["SQL", "Customer Service", "Microsoft Excel"],
+      },
+    ],
+  },
+  {
+    id: "catalis",
+    era: "2024 – Present",
+    title: "Leading the build",
+    narrative: [
+      "Today I'm Manager of Software Development at CATALIS. When the department's leadership turned over almost entirely, I was brought in as part of a brand-new management team — work I had effectively been doing in the AutoMon world for years. Now I lead delivery, mentor a development team, and keep building the data and visualization work I love.",
+    ],
+    roles: [
+      {
+        title: "Manager of Software Development",
+        org: "CATALIS",
+        type: "Full-time",
+        period: "Aug 2024 – Present",
+        desc: "Lead and manage a software development team — owning delivery, team leadership, and mentorship — and partner across the organization on business-intelligence and visualization work.",
+        skills: [
+          "Team Management",
+          "Team Leadership",
+          "Escalation Resolution",
+          "Business Intelligence (BI)",
+          "Dashboards",
+          "Data Visualization",
+        ],
+      },
+    ],
+  },
+] as const;
 
 // ---------------------------------------------------------------------------
 // Brands — each gets its own page at /<slug>/
