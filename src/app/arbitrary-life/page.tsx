@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { arbitraryLife as al } from "@/lib/site";
+import { arbitraryLife as al, asset } from "@/lib/site";
 import BrandHero from "@/components/BrandHero";
 
 export const metadata: Metadata = {
@@ -39,23 +39,35 @@ export default function ArbitraryLife() {
                       {...(b.href
                         ? { href: b.href, target: "_blank", rel: "noreferrer" }
                         : {})}
-                      className={`group flex h-full flex-col gap-2 bg-bg p-6 ${
+                      className={`group flex h-full items-start gap-5 bg-bg p-6 ${
                         b.href ? "transition-colors hover:bg-bg-elev" : ""
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-semibold tracking-tight transition-colors group-hover:text-accent">
-                          {b.title}
-                        </h3>
-                        {b.status && (
-                          <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
-                            {b.status}
-                          </span>
-                        )}
+                      {b.cover && (
+                        <div className="w-20 shrink-0 overflow-hidden rounded-lg ring-1 ring-black/10 sm:w-24">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={asset(b.cover)}
+                            alt={`${b.title} cover`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="font-semibold tracking-tight transition-colors group-hover:text-accent">
+                            {b.title}
+                          </h3>
+                          {b.status && (
+                            <span className="rounded-full border border-border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
+                              {b.status}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm italic leading-relaxed text-muted">
+                          {b.desc}
+                        </p>
                       </div>
-                      <p className="text-sm italic leading-relaxed text-muted">
-                        {b.desc}
-                      </p>
                     </Tag>
                   </li>
                 );
