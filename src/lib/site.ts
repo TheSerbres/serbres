@@ -24,7 +24,7 @@ export const site = {
   links: {
     email: "srobinson3rd@gmail.com",
     github: "https://github.com/TheSerbres",
-    youtube: "", // TODO: SERBRES YouTube channel URL
+    youtube: "https://www.youtube.com/@serbres",
     twitter: "",
     linkedin: "https://www.linkedin.com/in/sammie-robinson/",
   },
@@ -146,7 +146,7 @@ export const canonGenie = {
       desc: "Out of the lamp to teach the craft — mapmaking, editing, and the creative process, step by step.",
     },
   ],
-  youtube: "", // TODO: The Canon Genie YouTube channel
+  youtube: "https://www.youtube.com/@TheCanonGenie",
   etsy: {
     shopUrl: "https://thecanongenie.etsy.com",
     // TODO: curated featured listings. Add a thumbnail to /public and point `image` at it.
