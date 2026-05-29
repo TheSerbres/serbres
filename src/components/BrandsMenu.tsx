@@ -56,8 +56,8 @@ export default function BrandsMenu() {
               data-brand={b.slug}
               className="block px-4 py-3 transition-colors hover:bg-bg-elev"
             >
-              <span className="block text-sm font-medium text-fg">{b.name}</span>
-              <span className="mt-0.5 block text-xs text-accent/90">{b.tagline}</span>
+              <span className="block text-sm font-medium text-accent">{b.name}</span>
+              <span className="mt-0.5 block text-xs text-fg">{b.tagline}</span>
             </Link>
           ))}
         </div>
