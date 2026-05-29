@@ -19,12 +19,12 @@ export default function BrandHero({
   return (
     <section className="mx-auto max-w-5xl px-6 pt-20 pb-14 sm:pt-28">
       {logo && (
-        <div className="mb-7 flex h-28 w-fit items-center justify-center overflow-hidden rounded-2xl bg-white px-6 py-4 ring-1 ring-black/5 sm:h-32">
+        <div className="mb-7 flex h-36 w-36 items-center justify-center overflow-hidden rounded-2xl bg-white p-5 ring-1 ring-black/5 sm:h-40 sm:w-40">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={asset(logo)}
             alt={`${name} logo`}
-            className="h-full w-auto object-contain"
+            className="max-h-full max-w-full object-contain"
           />
         </div>
       )}
