@@ -21,6 +21,7 @@ export default function ArbitraryLife() {
         tagline={al.tagline}
         description={al.description}
         actions={actions}
+        logo={al.logo}
       />
 
       <section className="border-t border-border bg-bg-elev/40">

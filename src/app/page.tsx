@@ -90,7 +90,9 @@ function Brands() {
         </div>
 
         <ul className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3">
-          {brands.map((b) => (
+          {brands.map((b) => {
+            const logo: string = b.logo;
+            return (
             <li key={b.slug} className="contents">
               <Link
                 href={`/${b.slug}/`}
@@ -103,11 +105,11 @@ function Brands() {
                 >
                   →
                 </span>
-                {b.logo ? (
+                {logo ? (
                   <div className="flex h-16 w-fit items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-2 ring-1 ring-black/5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={asset(b.logo)}
+                      src={asset(logo)}
                       alt={`${b.name} logo`}
                       className="h-full w-auto object-contain"
                     />
@@ -123,7 +125,8 @@ function Brands() {
                 <p className="text-sm leading-relaxed text-muted">{b.blurb}</p>
               </Link>
             </li>
-          ))}
+            );
+          })}
         </ul>
       </div>
     </section>

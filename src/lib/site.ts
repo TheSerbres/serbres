@@ -189,7 +189,7 @@ export const canonGenie = {
 export const arbitraryLife = {
   slug: "arbitrary-life",
   name: "Arbitrary Life",
-  logo: "", // TODO: Arbitrary Life logo asset
+  logo: "/brands/arbitrary-life.svg",
   tagline: "An original science-fiction space opera.",
   blurb:
     "A sci-fi universe years in the worldbuilding — books first, with room to grow into YouTube graphic novels.",
