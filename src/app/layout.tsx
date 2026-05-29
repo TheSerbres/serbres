@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import BrandTheme from "@/components/BrandTheme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,7 +51,13 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <BrandTheme>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </BrandTheme>
+      </body>
     </html>
   );
 }

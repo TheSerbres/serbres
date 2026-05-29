@@ -2,7 +2,8 @@
 
 /* ----------------------------------------------------------------------------
    Theme tokens. Dark is the default (:root). Light overrides via [data-theme].
-   Accent (electric teal) is reserved for actions: buttons, links, focus, hover.
+   Accent is reserved for actions (buttons, links, focus, hover) and shifts per
+   brand-space via [data-brand] — silver in the SERBRES space, then per brand.
 ---------------------------------------------------------------------------- */
 :root {
   --bg: #0b0b0c;
@@ -10,10 +11,11 @@
   --fg: #ededed;
   --muted: #9a9aa3;
   --border: #26262c;
-  --accent: #2de2cf;
-  --accent-hover: #6cf0e2;
-  --accent-fg: #04231f; /* text/icon on top of an accent fill */
-  --glow: rgba(45, 226, 207, 0.16);
+  /* SERBRES default accent: silver */
+  --accent: #c3c8d2;
+  --accent-hover: #e4e8f0;
+  --accent-fg: #16161a; /* text/icon on top of an accent fill */
+  --glow: rgba(195, 200, 210, 0.14);
   color-scheme: dark;
 }
 
@@ -23,11 +25,59 @@
   --fg: #16161a;
   --muted: #5b5b66;
   --border: #e6e6ea;
-  --accent: #0d9488; /* darker teal for AA contrast on light */
-  --accent-hover: #0f766e;
+  /* SERBRES default accent: slate-silver (AA on light) */
+  --accent: #475569;
+  --accent-hover: #334155;
   --accent-fg: #ffffff;
-  --glow: rgba(13, 148, 136, 0.12);
+  --glow: rgba(71, 85, 105, 0.12);
   color-scheme: light;
+}
+
+/* ----------------------------------------------------------------------------
+   Per-brand accent palettes. A [data-brand] wrapper around the whole page
+   overrides the accent for its subtree; each brand also tints its own card on
+   the home grid. Scoped by theme so dark and light each get a readable hue.
+---------------------------------------------------------------------------- */
+/* The Canon Genie — purple */
+[data-theme="dark"] [data-brand="canon-genie"] {
+  --accent: #c084fc;
+  --accent-hover: #d8b4fe;
+  --accent-fg: #1f0a33;
+  --glow: rgba(192, 132, 252, 0.2);
+}
+[data-theme="light"] [data-brand="canon-genie"] {
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-fg: #ffffff;
+  --glow: rgba(124, 58, 237, 0.12);
+}
+
+/* Arbitrary Life — sci-fi blue */
+[data-theme="dark"] [data-brand="arbitrary-life"] {
+  --accent: #4da6ff;
+  --accent-hover: #8cc6ff;
+  --accent-fg: #04121f;
+  --glow: rgba(77, 166, 255, 0.2);
+}
+[data-theme="light"] [data-brand="arbitrary-life"] {
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-fg: #ffffff;
+  --glow: rgba(37, 99, 235, 0.12);
+}
+
+/* Legacy Ballot — gold */
+[data-theme="dark"] [data-brand="legacy-ballot"] {
+  --accent: #f1c453;
+  --accent-hover: #f8da86;
+  --accent-fg: #2a1d00;
+  --glow: rgba(241, 196, 83, 0.2);
+}
+[data-theme="light"] [data-brand="legacy-ballot"] {
+  --accent: #a16207;
+  --accent-hover: #854d0e;
+  --accent-fg: #ffffff;
+  --glow: rgba(161, 98, 7, 0.12);
 }
 
 @theme inline {

@@ -1,39 +1,12 @@
-import ThemeToggle from "@/components/ThemeToggle";
-import { site, asset } from "@/lib/site";
+import Link from "next/link";
+import { site, brands, asset } from "@/lib/site";
 
 export default function Home() {
   return (
     <>
-      <Header />
-      <main className="flex-1">
-        <Hero />
-        <About />
-      </main>
-      <Footer />
+      <Hero />
+      <Brands />
     </>
-  );
-}
-
-function Header() {
-  return (
-    <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <a href="#top" className="flex items-center gap-2.5" aria-label={site.brand}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={asset("/serbres-logo.svg")}
-            alt={`${site.brand} logo`}
-            className="logo-themed h-9 w-9"
-            width={36}
-            height={36}
-          />
-          <span className="text-sm font-semibold tracking-wide">
-            {site.brand}
-          </span>
-        </a>
-        <ThemeToggle />
-      </div>
-    </header>
   );
 }
 
@@ -63,21 +36,21 @@ function Hero() {
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
-            <a
+            <Link
               href={site.cta.href}
               className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-fg transition-all hover:bg-accent-hover hover:shadow-[0_8px_30px_-6px_var(--glow)]"
             >
               {site.cta.label}
               <span aria-hidden="true">→</span>
-            </a>
-            {site.links.github && (
+            </Link>
+            {site.links.youtube && (
               <a
-                href={site.links.github}
+                href={site.links.youtube}
                 target="_blank"
                 rel="noreferrer"
                 className="text-sm font-medium text-fg underline-offset-4 transition-colors hover:text-accent hover:underline"
               >
-                GitHub
+                Watch on YouTube
               </a>
             )}
           </div>
@@ -103,89 +76,56 @@ function Hero() {
   );
 }
 
-function About() {
+function Brands() {
   return (
-    <section id="about" className="border-t border-border bg-bg-elev/40">
+    <section id="brands" className="border-t border-border bg-bg-elev/40">
       <div className="mx-auto max-w-5xl px-6 py-20">
-        <h2 className="mb-8 font-mono text-xs uppercase tracking-[0.2em] text-accent">
-          About
-        </h2>
-        <div className="grid gap-8 md:grid-cols-[1fr_1.6fr]">
-          <p className="text-2xl font-semibold leading-snug tracking-tight">
-            One creator, many properties, one mark.
+        <div className="flex items-end justify-between gap-6">
+          <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
+            The properties
+          </h2>
+          <p className="hidden max-w-sm text-sm text-muted sm:block">
+            {site.intro}
           </p>
-          <div className="space-y-5 text-lg leading-relaxed text-muted">
-            {site.about.map((para, i) => (
-              <p key={i}>{para}</p>
-            ))}
-          </div>
         </div>
 
-        <ul className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3">
-          {site.properties.map((p) => {
-            const Tag = p.href ? "a" : "div";
-            return (
-              <li key={p.name} className="contents">
-                <Tag
-                  {...(p.href
-                    ? { href: p.href, target: "_blank", rel: "noreferrer" }
-                    : {})}
-                  className={`group flex h-full flex-col gap-2 bg-bg p-6 transition-colors ${
-                    p.href ? "hover:bg-bg-elev" : ""
-                  }`}
+        <ul className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3">
+          {brands.map((b) => (
+            <li key={b.slug} className="contents">
+              <Link
+                href={`/${b.slug}/`}
+                data-brand={b.slug}
+                className="group relative flex h-full flex-col gap-3 bg-bg p-7 transition-colors hover:bg-bg-elev"
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute right-6 top-6 text-accent opacity-0 transition-all -translate-x-1 group-hover:translate-x-0 group-hover:opacity-100"
                 >
-                  <h3 className="font-semibold tracking-tight transition-colors group-hover:text-accent">
-                    {p.name}
-                    {p.href && (
-                      <span
-                        aria-hidden="true"
-                        className="ml-1 inline-block opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        ↗
-                      </span>
-                    )}
+                  →
+                </span>
+                {b.logo ? (
+                  <div className="flex h-16 w-fit items-center justify-center overflow-hidden rounded-xl bg-white px-3 py-2 ring-1 ring-black/5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={asset(b.logo)}
+                      alt={`${b.name} logo`}
+                      className="h-full w-auto object-contain"
+                    />
+                  </div>
+                ) : (
+                  <h3 className="text-lg font-semibold tracking-tight transition-colors group-hover:text-accent">
+                    {b.name}
                   </h3>
-                  <p className="text-sm leading-relaxed text-muted">{p.desc}</p>
-                </Tag>
-              </li>
-            );
-          })}
+                )}
+                <p className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">
+                  {b.tagline}
+                </p>
+                <p className="text-sm leading-relaxed text-muted">{b.blurb}</p>
+              </Link>
+            </li>
+          ))}
         </ul>
       </div>
     </section>
-  );
-}
-
-function Footer() {
-  const { email, github, twitter, linkedin, youtube } = site.links;
-  const links = [
-    email && { label: "Email", href: `mailto:${email}` },
-    github && { label: "GitHub", href: github },
-    twitter && { label: "Twitter", href: twitter },
-    linkedin && { label: "LinkedIn", href: linkedin },
-    youtube && { label: "YouTube", href: youtube },
-  ].filter(Boolean) as { label: string; href: string }[];
-
-  return (
-    <footer className="border-t border-border">
-      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
-        <p className="text-sm text-muted">
-          © {new Date().getFullYear()} {site.name}
-        </p>
-        <nav className="flex flex-wrap gap-5">
-          {links.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target={link.href.startsWith("http") ? "_blank" : undefined}
-              rel={link.href.startsWith("http") ? "noreferrer" : undefined}
-              className="text-sm text-muted underline-offset-4 transition-colors hover:text-accent hover:underline"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-      </div>
-    </footer>
   );
 }
