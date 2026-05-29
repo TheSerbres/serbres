@@ -1,7 +1,8 @@
 // Single source of truth for editable site content + asset paths.
 // Edit the strings below to update the site — no component changes needed.
 
-export const BASE_PATH = process.env.NODE_ENV === "production" ? "/serbres" : "";
+// Custom domain (www.serbres.com) serves from the root — no base path needed.
+export const BASE_PATH = "";
 
 /** Prefix a public asset with the deploy base path (works in dev and on GitHub Pages). */
 export const asset = (path: string) => `${BASE_PATH}${path}`;
