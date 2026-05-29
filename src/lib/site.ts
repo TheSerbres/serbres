@@ -148,8 +148,7 @@ export const canonGenie = {
   ],
   youtube: "", // TODO: The Canon Genie YouTube channel
   etsy: {
-    // TODO: your Etsy shop URL — the "Shop all" button links here.
-    shopUrl: "",
+    shopUrl: "https://thecanongenie.etsy.com",
     // TODO: curated featured listings. Add a thumbnail to /public and point `image` at it.
     listings: [
       {
