@@ -138,7 +138,11 @@ function ChapterBlock({ chapter }: { chapter: Chapter }) {
       <div
         className={
           hasSide
-            ? "mt-5 grid gap-6 lg:grid-cols-[1fr_minmax(0,22rem)] lg:items-start"
+            ? `mt-5 grid gap-6 lg:grid-cols-[1fr_minmax(0,22rem)] ${
+                chapter.logo && !(chapter.images && chapter.images.length > 0)
+                  ? "lg:items-center"
+                  : "lg:items-start"
+              }`
             : "mt-5"
         }
       >
@@ -231,7 +235,7 @@ function ParallaxBand({ image }: { image: Image }) {
 
 function ChapterLogo({ logo }: { logo: Logo }) {
   return (
-    <div className="flex items-start justify-center lg:justify-end lg:pt-2">
+    <div className="flex h-full items-center justify-center">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={asset(logo.src)}
