@@ -379,6 +379,7 @@ export const journey = [
     logo: {
       src: "/about/catalis.png",
       alt: "CATALIS logo",
+      maxW: "max-w-[8rem]",
     },
     roles: [
       {

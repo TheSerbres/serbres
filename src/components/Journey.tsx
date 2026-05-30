@@ -34,7 +34,12 @@ type Image = {
 
 type ChapterLink = { href: string; label: string; icon: IconName };
 
-type Logo = { src: string; alt: string };
+type Logo = {
+  src: string;
+  alt: string;
+  /** Tailwind max-width class for the logo; defaults to max-w-[16rem]. */
+  maxW?: string;
+};
 
 type Chapter = {
   id: string;
@@ -231,7 +236,7 @@ function ChapterLogo({ logo }: { logo: Logo }) {
       <img
         src={asset(logo.src)}
         alt={logo.alt}
-        className="h-auto w-full max-w-[16rem] object-contain"
+        className={`h-auto w-full object-contain ${logo.maxW ?? "max-w-[16rem]"}`}
       />
     </div>
   );
