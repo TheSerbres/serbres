@@ -150,7 +150,13 @@ export const journey = [
     title: "Standing on my own",
     narrative: [
       "Independence arrived early, and I learned to put work first. My first real job was at Blockbuster — running the register, taking care of customers, keeping inventory straight, and helping train the new hires.",
+      "Through all of it I stayed in school, changing my major more than once because I always wanted more knowledge — Communications one stretch, Political Science the next. Political Science took me the furthest: I joined Model United Nations and traveled to conferences in Chicago and Santa Barbara, learning to research a position, argue it, and find common ground with a room full of strangers.",
     ],
+    image: {
+      src: "/about/chicago.jpg",
+      alt: "At Cloud Gate in Millennium Park, Chicago, for a Model United Nations conference",
+      caption: "Chicago for Model United Nations — Cloud Gate in Millennium Park.",
+    },
     roles: [
       {
         title: "Customer Service Representative",
