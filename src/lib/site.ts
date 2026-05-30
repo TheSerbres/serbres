@@ -253,13 +253,11 @@ export const journey = [
       "While I was at State Farm I started Year Up — a tuition-free program that puts young adults through a year of technical training and a real internship. For a while I was Mr. No-Days-Off, stacking school on top of full-time work. Eventually I bet on myself, went all in on the program, and saw it through to the internship.",
       "GateWay Community College came first — a Computer Information Systems certificate, a 3.8 GPA, and my first real grounding in web development, Java, and object-oriented programming. The Year Up internship landed me at American Express Global Business Travel as a full-stack engineering intern, where I learned to build a feature end to end alongside fellow interns and senior developers. I kept going afterward and finished my Associate of Applied Science in CIS at Phoenix College.",
     ],
-    images: [
-      {
-        src: "/about/year-up.jpg",
-        alt: "The all-in bet on a career in software",
-        caption: "Betting on the work — the discipline that carries into everything I build.",
-      },
-    ],
+    banner: {
+      src: "/about/keyboard.jpg",
+      alt: "A backlit laptop keyboard",
+      caption: "All in on the work — learning to build software, one keystroke at a time.",
+    },
     roles: [
       {
         title: "Software Development Intern",
