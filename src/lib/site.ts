@@ -100,11 +100,13 @@ export const journey = [
       "As a teenager I got into trouble. The system labeled me an at-risk youth — which, stripped of the stigma, really just meant that with the right intervention I could still get onto a good path.",
       "That intervention came through the Valley of the Sun YMCA. Its Evening Reporting Center — a detention-alternative program run with the behavioral-health provider PSA Art Awakenings — gave me mentors and a room full of people fighting the same fight. I finished the program, and then they hired me back as a paid graduate to help run it.",
     ],
-    image: {
-      src: "/about/dream-center.jpg",
-      alt: "The Dream Center",
-      caption: "The Dream Center — where the turnaround started.",
-    },
+    images: [
+      {
+        src: "/about/dream-center.jpg",
+        alt: "The Dream Center",
+        caption: "The Dream Center — where the turnaround started.",
+      },
+    ],
     roles: [
       {
         title: "Program Assistant",
@@ -131,11 +133,18 @@ export const journey = [
     narrative: [
       "I graduated from Cactus High School — the first of my siblings to earn a diploma. We walked in the Cardinals' stadium in Glendale, and crossing that stage felt like proof that the redirect had taken hold.",
     ],
-    image: {
-      src: "/about/graduation-glendale.jpg",
-      alt: "Graduation at the stadium in Glendale",
-      caption: "Graduation day — the stadium in Glendale.",
-    },
+    images: [
+      {
+        src: "/about/graduation-glendale.jpg",
+        alt: "Graduation at the stadium in Glendale",
+        caption: "Graduation day — the stadium in Glendale.",
+      },
+      {
+        src: "/about/vfw-speech.jpg",
+        alt: "VFW recognition ceremony with flags and the VFW emblem behind",
+        caption: "Recognized at a VFW ceremony around graduation.",
+      },
+    ],
     education: [
       {
         school: "Cactus High School",
@@ -152,11 +161,18 @@ export const journey = [
       "Independence arrived early, and I learned to put work first. My first real job was at Blockbuster — running the register, taking care of customers, keeping inventory straight, and helping train the new hires.",
       "Through all of it I stayed in school, changing my major more than once because I always wanted more knowledge — Communications one stretch, Political Science the next. Political Science took me the furthest: I joined Model United Nations and traveled to conferences in Chicago and Santa Barbara, learning to research a position, argue it, and find common ground with a room full of strangers.",
     ],
-    image: {
-      src: "/about/chicago.jpg",
-      alt: "At Cloud Gate in Millennium Park, Chicago, for a Model United Nations conference",
-      caption: "Chicago for Model United Nations — Cloud Gate in Millennium Park.",
-    },
+    images: [
+      {
+        src: "/about/chicago.jpg",
+        alt: "At Cloud Gate in Millennium Park, Chicago, for a Model United Nations conference",
+        caption: "Chicago for Model United Nations — Cloud Gate in Millennium Park.",
+      },
+      {
+        src: "/about/mun.jpg",
+        alt: "A Model United Nations conference session with international flags at the front of the hall",
+        caption: "Inside the hall — a Model United Nations conference in session.",
+      },
+    ],
     roles: [
       {
         title: "Customer Service Representative",
@@ -176,11 +192,13 @@ export const journey = [
       "Then I went back — this time to work for Meghan McGilvra, the mentor who had run the very programs that turned me around. Returning to the Valley of the Sun YMCA as a Case Manager and Program Coordinator let me do for other kids what someone once did for me.",
       "I carried a caseload of at-risk youth and worked to clear every barrier between them and their success. I also ran programs end to end — planning fundraising events and community-service projects, recruiting volunteers from schools and community organizations, and managing budgets against contract requirements. I spoke at Strong Kids Campaign and Heritage Club events, telling the story from the inside.",
     ],
-    image: {
-      src: "/about/camp.jpg",
-      alt: "Camp with the Valley of the Sun YMCA",
-      caption: "Back at camp with the Valley of the Sun YMCA.",
-    },
+    images: [
+      {
+        src: "/about/camp.jpg",
+        alt: "Camp with the Valley of the Sun YMCA",
+        caption: "Back at camp with the Valley of the Sun YMCA.",
+      },
+    ],
     link: {
       href: "https://www.facebook.com/sammie.robinson.984",
       label: "View on Facebook",
@@ -234,11 +252,13 @@ export const journey = [
       "While I was at State Farm I started Year Up — a tuition-free program that puts young adults through a year of technical training and a real internship. For a while I was Mr. No-Days-Off, stacking school on top of full-time work. Eventually I bet on myself, went all in on the program, and saw it through to the internship.",
       "GateWay Community College came first — a Computer Information Systems certificate, a 3.8 GPA, and my first real grounding in web development, Java, and object-oriented programming. The Year Up internship landed me at American Express Global Business Travel as a full-stack engineering intern, where I learned to build a feature end to end alongside fellow interns and senior developers. I kept going afterward and finished my Associate of Applied Science in CIS at Phoenix College.",
     ],
-    image: {
-      src: "/about/year-up.jpg",
-      alt: "The all-in bet on a career in software",
-      caption: "Betting on the work — the discipline that carries into everything I build.",
-    },
+    images: [
+      {
+        src: "/about/year-up.jpg",
+        alt: "The all-in bet on a career in software",
+        caption: "Betting on the work — the discipline that carries into everything I build.",
+      },
+    ],
     roles: [
       {
         title: "Software Development Intern",

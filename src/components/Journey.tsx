@@ -35,7 +35,7 @@ type Chapter = {
   era: string;
   title: string;
   narrative: readonly string[];
-  image?: Image;
+  images?: readonly Image[];
   link?: ChapterLink;
   roles?: readonly Role[];
   education?: readonly Education[];
@@ -120,7 +120,7 @@ function ChapterBlock({ chapter }: { chapter: Chapter }) {
 
       <div
         className={
-          chapter.image
+          chapter.images && chapter.images.length > 0
             ? "mt-5 grid gap-6 lg:grid-cols-[1fr_minmax(0,22rem)] lg:items-start"
             : "mt-5"
         }
@@ -130,12 +130,19 @@ function ChapterBlock({ chapter }: { chapter: Chapter }) {
             <p key={i}>{para}</p>
           ))}
         </div>
-        {chapter.image && <ChapterImage image={chapter.image} />}
+        {chapter.images && chapter.images.length > 0 && (
+          <ChapterGallery images={chapter.images} />
+        )}
       </div>
 
       {hasDetails && <Details chapter={chapter} />}
     </li>
   );
+}
+
+function ChapterGallery({ images }: { images: readonly Image[] }) {
+  if (images.length === 1) return <ChapterImage image={images[0]} />;
+  return <Carousel images={images} />;
 }
 
 function ChapterImage({ image }: { image: Image }) {
@@ -177,6 +184,120 @@ function ChapterImage({ image }: { image: Image }) {
         </figcaption>
       )}
     </figure>
+  );
+}
+
+function Carousel({ images }: { images: readonly Image[] }) {
+  const [index, setIndex] = useState(0);
+  const count = images.length;
+  const go = (n: number) => setIndex((n + count) % count);
+  const current = images[index];
+
+  return (
+    <figure className="overflow-hidden rounded-2xl border border-border bg-bg-elev/60">
+      <div className="group relative aspect-[16/10] w-full">
+        <div
+          className="flex h-full w-full transition-transform duration-500 ease-out"
+          style={{ transform: `translateX(-${index * 100}%)` }}
+        >
+          {images.map((img, i) => (
+            <div key={i} className="h-full w-full shrink-0 grow-0 basis-full">
+              <CarouselSlide image={img} />
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => go(index - 1)}
+          aria-label="Previous photo"
+          className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-bg/70 text-fg shadow-sm backdrop-blur transition-colors hover:bg-bg hover:text-accent"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="h-4 w-4"
+          >
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={() => go(index + 1)}
+          aria-label="Next photo"
+          className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-bg/70 text-fg shadow-sm backdrop-blur transition-colors hover:bg-bg hover:text-accent"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="h-4 w-4"
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
+      </div>
+
+      <figcaption className="border-t border-border px-4 py-2.5 text-xs leading-relaxed text-muted">
+        <p>{current.caption}</p>
+        <div className="mt-2 flex items-center gap-1.5">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => go(i)}
+              aria-label={`Go to photo ${i + 1}`}
+              aria-current={i === index}
+              className={`h-1.5 rounded-full transition-all ${
+                i === index ? "w-4 bg-accent" : "w-1.5 bg-border hover:bg-muted"
+              }`}
+            />
+          ))}
+        </div>
+      </figcaption>
+    </figure>
+  );
+}
+
+function CarouselSlide({ image }: { image: Image }) {
+  const [failed, setFailed] = useState(!image.src);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth === 0) {
+      setFailed(true);
+    }
+  }, []);
+
+  if (failed) {
+    return (
+      <div className="flex h-full w-full items-center justify-center p-6 text-center">
+        <span className="text-xs leading-relaxed text-muted">
+          {image.caption}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      ref={imgRef}
+      src={asset(image.src)}
+      alt={image.alt}
+      onError={() => setFailed(true)}
+      className="h-full w-full object-cover"
+    />
   );
 }
 
