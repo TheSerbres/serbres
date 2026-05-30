@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { site, brands } from "@/lib/site";
+import { site, brands, canonGenie } from "@/lib/site";
 
-type IconName = "email" | "github" | "youtube" | "twitter" | "linkedin";
+type IconName = "email" | "github" | "youtube" | "twitter" | "linkedin" | "etsy";
 
 function SocialIcon({ name }: { name: IconName }) {
   const cls = "h-5 w-5 shrink-0";
@@ -30,6 +30,12 @@ function SocialIcon({ name }: { name: IconName }) {
           <path d="M18.9 1.5h3.68l-8.04 9.19L24 22.5h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.5h7.59l5.24 6.93L18.9 1.5zm-1.29 18.8h2.04L6.49 3.6H4.3l13.31 16.7z" />
         </svg>
       );
+    case "etsy":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={cls}>
+          <path d="M8.626 2.71v6.547s2.32.024 3.575-.072c.984-.13 1.156-.215 1.33-1.169l.353-1.4h1.045l-.18 3.044.086 3.093h-1.041l-.267-1.226c-.215-.881-.452-1.06-1.328-1.146-1.115-.094-3.573-.073-3.573-.073v5.485c0 1.058.546 1.519 1.788 1.519h3.652c1.143 0 2.286-.094 2.997-1.762l.93-2.083h.901c-.094.475-.546 4.31-.62 5.176 0 0-3.467-.082-4.954-.082H6.5l-3.918.082v-.965l1.281-.276c.943-.215 1.195-.477 1.195-1.244 0 0 .071-2.596.071-6.873 0-4.283-.071-6.876-.071-6.876 0-.858-.243-1.04-1.195-1.243l-1.281-.276V.748l3.844.082h7.319c1.487 0 4.039-.262 4.039-.262s-.071 1.595-.18 5.281h-.853l-.315-1.121c-.31-1.396-.762-2.082-1.621-2.082H8.91c-.143 0-.284.024-.284.062z" />
+        </svg>
+      );
     case "email":
     default:
       return (
@@ -42,10 +48,12 @@ function SocialIcon({ name }: { name: IconName }) {
 
 export default function Footer() {
   const { email, github, twitter, linkedin, youtube } = site.links;
+  const etsy = canonGenie.etsy.shopUrl;
   const social = [
     email && { label: "Email", href: `mailto:${email}`, icon: "email" as IconName },
     github && { label: "GitHub", href: github, icon: "github" as IconName },
     youtube && { label: "YouTube", href: youtube, icon: "youtube" as IconName },
+    etsy && { label: "Etsy", href: etsy, icon: "etsy" as IconName },
     twitter && { label: "Twitter", href: twitter, icon: "twitter" as IconName },
     linkedin && { label: "LinkedIn", href: linkedin, icon: "linkedin" as IconName },
   ].filter(Boolean) as { label: string; href: string; icon: IconName }[];
