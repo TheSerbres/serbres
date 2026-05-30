@@ -135,9 +135,9 @@ export const journey = [
     ],
     images: [
       {
-        src: "/about/graduation-glendale.jpg",
-        alt: "Graduation at the stadium in Glendale",
-        caption: "Graduation day — the stadium in Glendale.",
+        src: "/about/stadium.jpg",
+        alt: "Aerial view at dusk of the Cardinals' stadium in Glendale, Arizona",
+        caption: "Graduation day — the Cardinals' stadium in Glendale.",
       },
       {
         src: "/about/vfw-speech.jpg",
