@@ -26,6 +26,10 @@ type Image = {
   src: string;
   alt: string;
   caption: string;
+  /** Tailwind aspect-ratio class for the figure; defaults to 16/10. */
+  aspect?: string;
+  /** CSS object-position for the cropped image; defaults to center. */
+  position?: string;
 };
 
 type ChapterLink = { href: string; label: string; icon: IconName };
@@ -231,7 +235,7 @@ function ChapterImage({ image }: { image: Image }) {
 
   return (
     <figure className="overflow-hidden rounded-2xl border border-border bg-bg-elev/60">
-      <div className="relative aspect-[16/10] w-full">
+      <div className={`relative w-full ${image.aspect ?? "aspect-[16/10]"}`}>
         {failed ? (
           <div className="flex h-full w-full items-center justify-center p-6 text-center">
             <span className="text-xs leading-relaxed text-muted">
@@ -245,6 +249,7 @@ function ChapterImage({ image }: { image: Image }) {
             src={asset(image.src)}
             alt={image.alt}
             onError={() => setFailed(true)}
+            style={image.position ? { objectPosition: image.position } : undefined}
             className="h-full w-full object-cover"
           />
         )}

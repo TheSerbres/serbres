@@ -168,6 +168,7 @@ export const journey = [
         src: "/about/chicago.jpg",
         alt: "At Cloud Gate in Millennium Park, Chicago, for a Model United Nations conference",
         caption: "Chicago for Model United Nations — Cloud Gate in Millennium Park.",
+        aspect: "aspect-[4/5]",
       },
     ],
     banner: {
