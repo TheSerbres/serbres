@@ -58,7 +58,13 @@ export default function Footer() {
       {
         label: "Email",
         icon: "email" as IconName,
-        accounts: [email && { name: site.brand, detail: email, href: `mailto:${email}` }],
+        accounts: [
+          email && {
+            name: "Sammie L. Robinson III",
+            detail: email,
+            href: `mailto:${email}`,
+          },
+        ],
       },
       {
         label: "GitHub",
