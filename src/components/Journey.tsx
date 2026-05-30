@@ -144,42 +144,38 @@ function ChapterBlock({ chapter }: { chapter: Chapter }) {
 }
 
 function ParallaxBand({ image }: { image: Image }) {
-  const wrapRef = useRef<HTMLDivElement>(null);
   const figRef = useRef<HTMLElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
+  // Scroll-driven parallax: drift the image opposite to scroll as the band
+  // passes through the viewport.
   useEffect(() => {
-    const wrap = wrapRef.current;
     const fig = figRef.current;
     const img = imgRef.current;
-    if (!wrap || !fig || !img) return;
-
-    const reduce =
+    if (!fig || !img) return;
+    if (
       typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
     let raf = 0;
-    // Recompute on every frame so full-bleed sizing and parallax stay correct
-    // through resizes, scrollbar changes, and orientation flips — no stale state.
-    const apply = () => {
+    const update = () => {
       raf = 0;
-      const rect = wrap.getBoundingClientRect();
-      // Break out of the timeline's left padding to span the full viewport.
-      fig.style.marginLeft = `${-rect.left}px`;
-      fig.style.width = `${document.documentElement.clientWidth}px`;
-      if (!reduce) {
-        const vh = window.innerHeight || 1;
-        const raw =
-          (rect.top + rect.height / 2 - vh / 2) / (vh / 2 + rect.height / 2);
-        const progress = Math.max(-1, Math.min(1, raw));
-        const shift = progress * 7; // percent of image height
-        img.style.transform = `translate3d(-50%, calc(-50% + ${shift}%), 0)`;
-      }
+      const rect = fig.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const raw =
+        (rect.top + rect.height / 2 - vh / 2) / (vh / 2 + rect.height / 2);
+      const progress = Math.max(-1, Math.min(1, raw));
+      const shift = progress * 7; // vertical drift, % of image height
+      // Slow zoom: scales up as the band travels up through the viewport.
+      const scale = 1.04 + ((1 - progress) / 2) * 0.06; // 1.04 → 1.10
+      img.style.transform = `translate3d(-50%, calc(-50% + ${shift}%), 0) scale(${scale.toFixed(4)})`;
     };
     const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(apply);
+      if (!raf) raf = requestAnimationFrame(update);
     };
-    apply();
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
@@ -190,32 +186,28 @@ function ParallaxBand({ image }: { image: Image }) {
   }, []);
 
   return (
-    <div ref={wrapRef} className="mt-10">
-      <figure
-        ref={figRef}
-        className="relative h-60 overflow-hidden bg-bg-elev sm:h-72 lg:h-80"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={imgRef}
-          src={asset(image.src)}
-          alt={image.alt}
-          className="absolute left-1/2 top-1/2 h-[124%] w-full object-cover"
-          style={{ transform: "translate3d(-50%, -50%, 0)" }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg/60 via-bg/10 to-transparent"
-        />
-        {image.caption && (
-          <figcaption className="absolute inset-x-0 bottom-0">
-            <span className="mx-auto block max-w-5xl px-6 pb-4 text-xs leading-relaxed text-fg/85">
-              {image.caption}
-            </span>
-          </figcaption>
-        )}
-      </figure>
-    </div>
+    <figure
+      ref={figRef}
+      className="relative mt-5 h-56 w-full overflow-hidden rounded-2xl border border-border bg-bg-elev sm:h-64 lg:h-72"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        ref={imgRef}
+        src={asset(image.src)}
+        alt={image.alt}
+        className="absolute left-1/2 top-1/2 h-[124%] w-full object-cover"
+        style={{ transform: "translate3d(-50%, -50%, 0)" }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg/60 via-bg/10 to-transparent"
+      />
+      {image.caption && (
+        <figcaption className="absolute inset-x-0 bottom-0 px-4 pb-3 text-xs leading-relaxed text-fg/85">
+          {image.caption}
+        </figcaption>
+      )}
+    </figure>
   );
 }
 
