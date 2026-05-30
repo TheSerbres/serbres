@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { asset } from "@/lib/site";
+import SocialIcon, { type IconName } from "@/components/SocialIcon";
 
 type Role = {
   title: string;
@@ -27,12 +28,15 @@ type Image = {
   caption: string;
 };
 
+type ChapterLink = { href: string; label: string; icon: IconName };
+
 type Chapter = {
   id: string;
   era: string;
   title: string;
   narrative: readonly string[];
   image?: Image;
+  link?: ChapterLink;
   roles?: readonly Role[];
   education?: readonly Education[];
 };
@@ -96,9 +100,23 @@ function ChapterBlock({ chapter }: { chapter: Chapter }) {
       <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
         {chapter.era}
       </p>
-      <h3 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-        {chapter.title}
-      </h3>
+      <div className="mt-2 flex items-center justify-between gap-4">
+        <h3 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          {chapter.title}
+        </h3>
+        {chapter.link && (
+          <a
+            href={chapter.link.href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={chapter.link.label}
+            className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-accent"
+          >
+            <SocialIcon name={chapter.link.icon} />
+            <span className="hidden sm:inline">{chapter.link.label}</span>
+          </a>
+        )}
+      </div>
 
       <div
         className={
