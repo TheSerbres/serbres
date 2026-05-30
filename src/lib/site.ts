@@ -169,12 +169,12 @@ export const journey = [
         alt: "At Cloud Gate in Millennium Park, Chicago, for a Model United Nations conference",
         caption: "Chicago for Model United Nations — Cloud Gate in Millennium Park.",
       },
-      {
-        src: "/about/mun.jpg",
-        alt: "A Model United Nations conference session with international flags at the front of the hall",
-        caption: "Inside the hall — a Model United Nations conference in session.",
-      },
     ],
+    banner: {
+      src: "/about/mun.jpg",
+      alt: "A Model United Nations conference session with international flags at the front of the hall",
+      caption: "Inside the hall — a Model United Nations conference in session.",
+    },
     roles: [
       {
         title: "Customer Service Representative",
