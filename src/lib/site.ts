@@ -313,6 +313,10 @@ export const journey = [
       "AutoMon is where it all came together — a small company full of good people who genuinely celebrated each other's wins. The kind of place where you build long relationships and grow.",
       "I started on the customer-facing support team, tracking down the root cause of software issues. From there I stepped into leading and training the support team, then started writing code on the development team through paired programming and bug fixes. When my predecessor moved up, leadership took me to dinner at Houston's and asked me to run the support department. A few years later I made the jump I had been working toward and became a full-time Software Engineer — building in C#, Angular, and SQL, with a real focus on business intelligence, dashboards, and visualization.",
     ],
+    logo: {
+      src: "/about/automon.png",
+      alt: "AutoMon logo",
+    },
     roles: [
       {
         title: "Software Engineer",

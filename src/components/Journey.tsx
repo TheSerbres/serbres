@@ -34,12 +34,16 @@ type Image = {
 
 type ChapterLink = { href: string; label: string; icon: IconName };
 
+type Logo = { src: string; alt: string };
+
 type Chapter = {
   id: string;
   era: string;
   title: string;
   narrative: readonly string[];
   images?: readonly Image[];
+  /** A plain, contained brand logo shown in the side column — no panel or caption. */
+  logo?: Logo;
   banner?: Image;
   link?: ChapterLink;
   roles?: readonly Role[];
@@ -90,6 +94,9 @@ function ChapterBlock({ chapter }: { chapter: Chapter }) {
     (chapter.roles && chapter.roles.length > 0) ||
     (chapter.education && chapter.education.length > 0);
 
+  const hasSide =
+    (chapter.images && chapter.images.length > 0) || Boolean(chapter.logo);
+
   return (
     <li
       ref={ref}
@@ -125,7 +132,7 @@ function ChapterBlock({ chapter }: { chapter: Chapter }) {
 
       <div
         className={
-          chapter.images && chapter.images.length > 0
+          hasSide
             ? "mt-5 grid gap-6 lg:grid-cols-[1fr_minmax(0,22rem)] lg:items-start"
             : "mt-5"
         }
@@ -135,9 +142,11 @@ function ChapterBlock({ chapter }: { chapter: Chapter }) {
             <p key={i}>{para}</p>
           ))}
         </div>
-        {chapter.images && chapter.images.length > 0 && (
+        {chapter.images && chapter.images.length > 0 ? (
           <ChapterGallery images={chapter.images} />
-        )}
+        ) : chapter.logo ? (
+          <ChapterLogo logo={chapter.logo} />
+        ) : null}
       </div>
 
       {hasDetails && <Details chapter={chapter} />}
@@ -212,6 +221,19 @@ function ParallaxBand({ image }: { image: Image }) {
         </figcaption>
       )}
     </figure>
+  );
+}
+
+function ChapterLogo({ logo }: { logo: Logo }) {
+  return (
+    <div className="flex items-start justify-center lg:justify-end lg:pt-2">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={asset(logo.src)}
+        alt={logo.alt}
+        className="h-auto w-full max-w-[16rem] object-contain"
+      />
+    </div>
   );
 }
 
