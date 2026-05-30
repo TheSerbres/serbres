@@ -131,7 +131,7 @@ export const journey = [
     era: "2008 – 2009",
     title: "First in my family to graduate",
     narrative: [
-      "I graduated from Cactus High School — the first of my siblings to earn a diploma. We walked in the Cardinals' stadium in Glendale, and crossing that stage felt like proof that the redirect had taken hold.",
+      "I moved around to get there — my first two years at Cortez High School, my junior year at Trevor Brown, and then Cactus High School, where I finally walked the stage. I was the first of my siblings to earn a diploma. We graduated in the Cardinals' stadium in Glendale, and crossing that stage felt like proof that the redirect had taken hold.",
     ],
     images: [
       {
@@ -150,6 +150,8 @@ export const journey = [
         school: "Cactus High School",
         credential: "High School Diploma",
         period: "2008 – 2009",
+        detail:
+          "After two years at Cortez High School and a junior year at Trevor Brown, transferred to Cactus to finish and graduate.",
       },
     ],
   },
