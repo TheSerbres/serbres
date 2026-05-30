@@ -336,7 +336,7 @@ export const journey = [
     era: "2024 – Present",
     title: "Leading the build",
     narrative: [
-      "Today I'm Manager of Software Development at CATALIS. When the department's leadership turned over almost entirely, I was brought in as part of a brand-new management team — work I had effectively been doing in the AutoMon world for years. Now I lead delivery, mentor a development team, and keep building the data and visualization work I love.",
+      "CATALIS acquired AutoMon, so this chapter is really a continuation of the last one. When the department's leadership turned over almost entirely, I was brought in as part of a brand-new management team — work I had effectively been doing in the AutoMon world for years. Today I'm Manager of Software Development: I lead delivery, mentor a development team, and keep building the data and visualization work I love.",
     ],
     roles: [
       {
