@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { asset } from "@/lib/site";
+import SocialIcon, { type IconName } from "@/components/SocialIcon";
 
-type Action = { label: string; href: string; external?: boolean };
+type Action = {
+  label: string;
+  href: string;
+  external?: boolean;
+  icon?: IconName;
+};
 
 export default function BrandHero({
   name,
@@ -47,38 +53,37 @@ export default function BrandHero({
       </div>
 
       {actions.length > 0 && (
-        <div className="mt-9 flex flex-wrap items-center gap-4">
-          {actions.map((a, i) =>
-            a.external ? (
+        <div className="mt-9 flex flex-wrap items-center gap-5">
+          {actions.map((a, i) => {
+            const primary = i === 0;
+            const className = primary
+              ? "inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-fg transition-all hover:bg-accent-hover hover:shadow-[0_8px_30px_-6px_var(--glow)]"
+              : a.icon
+                ? "inline-flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-accent"
+                : "text-sm font-medium text-fg underline-offset-4 transition-colors hover:text-accent hover:underline";
+            const inner = (
+              <>
+                {a.icon && !primary && <SocialIcon name={a.icon} />}
+                {a.label}
+                {primary && <span aria-hidden="true">→</span>}
+              </>
+            );
+            return a.external ? (
               <a
                 key={a.label}
                 href={a.href}
                 target="_blank"
                 rel="noreferrer"
-                className={
-                  i === 0
-                    ? "inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-fg transition-all hover:bg-accent-hover hover:shadow-[0_8px_30px_-6px_var(--glow)]"
-                    : "text-sm font-medium text-fg underline-offset-4 transition-colors hover:text-accent hover:underline"
-                }
+                className={className}
               >
-                {a.label}
-                {i === 0 && <span aria-hidden="true">→</span>}
+                {inner}
               </a>
             ) : (
-              <Link
-                key={a.label}
-                href={a.href}
-                className={
-                  i === 0
-                    ? "inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-fg transition-all hover:bg-accent-hover hover:shadow-[0_8px_30px_-6px_var(--glow)]"
-                    : "text-sm font-medium text-fg underline-offset-4 transition-colors hover:text-accent hover:underline"
-                }
-              >
-                {a.label}
-                {i === 0 && <span aria-hidden="true">→</span>}
+              <Link key={a.label} href={a.href} className={className}>
+                {inner}
               </Link>
-            )
-          )}
+            );
+          })}
         </div>
       )}
     </section>

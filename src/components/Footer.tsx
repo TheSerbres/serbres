@@ -1,51 +1,7 @@
 import Link from "next/link";
 import { site, brands, canonGenie } from "@/lib/site";
 import SocialMenu, { type Account } from "@/components/SocialMenu";
-
-type IconName = "email" | "github" | "youtube" | "twitter" | "linkedin" | "etsy";
-
-function SocialIcon({ name }: { name: IconName }) {
-  const cls = "h-5 w-5 shrink-0";
-  switch (name) {
-    case "linkedin":
-      return (
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={cls}>
-          <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
-        </svg>
-      );
-    case "youtube":
-      return (
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={cls}>
-          <path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.51A3.02 3.02 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.88.51 9.38.51 9.38.51s7.5 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.14A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8zM9.55 15.57V8.43L15.82 12l-6.27 3.57z" />
-        </svg>
-      );
-    case "github":
-      return (
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={cls}>
-          <path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.82.58A12 12 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z" />
-        </svg>
-      );
-    case "twitter":
-      return (
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={cls}>
-          <path d="M18.9 1.5h3.68l-8.04 9.19L24 22.5h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.5h7.59l5.24 6.93L18.9 1.5zm-1.29 18.8h2.04L6.49 3.6H4.3l13.31 16.7z" />
-        </svg>
-      );
-    case "etsy":
-      return (
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={cls}>
-          <path d="M8.626 2.71v6.547s2.32.024 3.575-.072c.984-.13 1.156-.215 1.33-1.169l.353-1.4h1.045l-.18 3.044.086 3.093h-1.041l-.267-1.226c-.215-.881-.452-1.06-1.328-1.146-1.115-.094-3.573-.073-3.573-.073v5.485c0 1.058.546 1.519 1.788 1.519h3.652c1.143 0 2.286-.094 2.997-1.762l.93-2.083h.901c-.094.475-.546 4.31-.62 5.176 0 0-3.467-.082-4.954-.082H6.5l-3.918.082v-.965l1.281-.276c.943-.215 1.195-.477 1.195-1.244 0 0 .071-2.596.071-6.873 0-4.283-.071-6.876-.071-6.876 0-.858-.243-1.04-1.195-1.243l-1.281-.276V.748l3.844.082h7.319c1.487 0 4.039-.262 4.039-.262s-.071 1.595-.18 5.281h-.853l-.315-1.121c-.31-1.396-.762-2.082-1.621-2.082H8.91c-.143 0-.284.024-.284.062z" />
-        </svg>
-      );
-    case "email":
-    default:
-      return (
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={cls}>
-          <path d="M22 4H2a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h20a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zm-1.4 2L12 11.6 3.4 6h17.2zM3 8.27l8.46 5.5a1 1 0 0 0 1.08 0L21 8.27V18H3V8.27z" />
-        </svg>
-      );
-  }
-}
+import SocialIcon, { type IconName } from "@/components/SocialIcon";
 
 export default function Footer() {
   const { email, github, twitter, linkedin, youtube } = site.links;

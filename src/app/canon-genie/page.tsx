@@ -8,11 +8,21 @@ export const metadata: Metadata = {
 };
 
 export default function CanonGenie() {
-  const actions: { label: string; href: string; external: boolean }[] = [];
+  const actions: {
+    label: string;
+    href: string;
+    external: boolean;
+    icon?: "youtube" | "etsy";
+  }[] = [];
   if (cg.etsy.shopUrl)
     actions.push({ label: "Shop on Etsy", href: cg.etsy.shopUrl, external: true });
   if (cg.youtube)
-    actions.push({ label: "Watch the process", href: cg.youtube, external: true });
+    actions.push({
+      label: "Watch the process",
+      href: cg.youtube,
+      external: true,
+      icon: "youtube",
+    });
 
   const listings = cg.etsy.listings.filter((l) => l.href || l.image);
 
