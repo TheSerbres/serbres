@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { site, brands, canonGenie } from "@/lib/site";
+import YouTubeMenu from "@/components/YouTubeMenu";
 
 type IconName = "email" | "github" | "youtube" | "twitter" | "linkedin" | "etsy";
 
@@ -58,6 +59,12 @@ export default function Footer() {
     linkedin && { label: "LinkedIn", href: linkedin, icon: "linkedin" as IconName },
   ].filter(Boolean) as { label: string; href: string; icon: IconName }[];
 
+  // YouTube fans out into a list of channels on hover.
+  const youtubeChannels = [
+    youtube && { name: site.brand, href: youtube },
+    canonGenie.youtube && { name: canonGenie.name, href: canonGenie.youtube },
+  ].filter(Boolean) as { name: string; href: string }[];
+
   return (
     <footer className="border-t border-border">
       <div className="mx-auto grid max-w-5xl gap-8 px-6 py-12 sm:grid-cols-[1.5fr_1fr_1fr]">
@@ -87,18 +94,22 @@ export default function Footer() {
 
         <nav className="flex flex-col gap-2.5">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">Connect</p>
-          {social.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target={link.href.startsWith("http") ? "_blank" : undefined}
-              rel={link.href.startsWith("http") ? "noreferrer" : undefined}
-              className="inline-flex items-center gap-2.5 text-sm text-muted transition-colors hover:text-accent"
-            >
-              <SocialIcon name={link.icon} />
-              <span>{link.label}</span>
-            </a>
-          ))}
+          {social.map((link) =>
+            link.icon === "youtube" && youtubeChannels.length > 1 ? (
+              <YouTubeMenu key={link.label} channels={youtubeChannels} />
+            ) : (
+              <a
+                key={link.label}
+                href={link.href}
+                target={link.href.startsWith("http") ? "_blank" : undefined}
+                rel={link.href.startsWith("http") ? "noreferrer" : undefined}
+                className="inline-flex items-center gap-2.5 text-sm text-muted transition-colors hover:text-accent"
+              >
+                <SocialIcon name={link.icon} />
+                <span>{link.label}</span>
+              </a>
+            )
+          )}
         </nav>
       </div>
 
