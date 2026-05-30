@@ -226,6 +226,10 @@ export const journey = [
       "I wanted to understand how business actually works, so I went to learn sales at State Farm. On the Customer Care Center team I earned and kept a Property & Casualty license across several states and spent my days on inbound calls — quoting and securing new policies and helping policyholders with information, advice, and changes.",
       "It taught me how to listen, how to earn trust quickly, and how to be genuinely useful to someone in a five-minute window.",
     ],
+    logo: {
+      src: "/about/statefarm.png",
+      alt: "State Farm logo",
+    },
     roles: [
       {
         title: "CCC Sales Representative",
