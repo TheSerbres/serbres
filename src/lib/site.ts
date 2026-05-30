@@ -182,6 +182,11 @@ export const journey = [
       "Then I went back — this time to work for Meghan McGilvra, the mentor who had run the very programs that turned me around. Returning to the Valley of the Sun YMCA as a Case Manager and Program Coordinator let me do for other kids what someone once did for me.",
       "I carried a caseload of at-risk youth and worked to clear every barrier between them and their success. I also ran programs end to end — planning fundraising events and community-service projects, recruiting volunteers from schools and community organizations, and managing budgets against contract requirements. I spoke at Strong Kids Campaign and Heritage Club events, telling the story from the inside.",
     ],
+    logo: {
+      src: "/about/ymca.png",
+      alt: "The Y — YMCA logo",
+      themed: true,
+    },
     banner: {
       src: "/about/camp.jpg",
       alt: "Camp with the Valley of the Sun YMCA",

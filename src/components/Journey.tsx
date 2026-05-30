@@ -39,6 +39,8 @@ type Logo = {
   alt: string;
   /** Tailwind max-width class for the logo; defaults to max-w-[16rem]. */
   maxW?: string;
+  /** Invert a near-black logo so it stays visible on the dark theme. */
+  themed?: boolean;
 };
 
 type Chapter = {
@@ -240,7 +242,9 @@ function ChapterLogo({ logo }: { logo: Logo }) {
       <img
         src={asset(logo.src)}
         alt={logo.alt}
-        className={`h-auto w-full object-contain ${logo.maxW ?? "max-w-[16rem]"}`}
+        className={`h-auto w-full object-contain ${logo.maxW ?? "max-w-[16rem]"} ${
+          logo.themed ? "logo-themed" : ""
+        }`}
       />
     </div>
   );
