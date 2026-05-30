@@ -227,8 +227,9 @@ export const journey = [
       "It taught me how to listen, how to earn trust quickly, and how to be genuinely useful to someone in a five-minute window.",
     ],
     logo: {
-      src: "/about/statefarm.png",
+      src: "/about/statefarm-black.png",
       alt: "State Farm logo",
+      themed: true,
     },
     roles: [
       {
