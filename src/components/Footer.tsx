@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { site, brands, canonGenie } from "@/lib/site";
-import YouTubeMenu from "@/components/YouTubeMenu";
+import SocialMenu, { type Account } from "@/components/SocialMenu";
 
 type IconName = "email" | "github" | "youtube" | "twitter" | "linkedin" | "etsy";
 
@@ -50,20 +50,64 @@ function SocialIcon({ name }: { name: IconName }) {
 export default function Footer() {
   const { email, github, twitter, linkedin, youtube } = site.links;
   const etsy = canonGenie.etsy.shopUrl;
-  const social = [
-    email && { label: "Email", href: `mailto:${email}`, icon: "email" as IconName },
-    github && { label: "GitHub", href: github, icon: "github" as IconName },
-    youtube && { label: "YouTube", href: youtube, icon: "youtube" as IconName },
-    etsy && { label: "Etsy", href: etsy, icon: "etsy" as IconName },
-    twitter && { label: "Twitter", href: twitter, icon: "twitter" as IconName },
-    linkedin && { label: "LinkedIn", href: linkedin, icon: "linkedin" as IconName },
-  ].filter(Boolean) as { label: string; href: string; icon: IconName }[];
 
-  // YouTube fans out into a list of channels on hover.
-  const youtubeChannels = [
-    youtube && { name: site.brand, href: youtube },
-    canonGenie.youtube && { name: canonGenie.name, href: canonGenie.youtube },
-  ].filter(Boolean) as { name: string; href: string }[];
+  // Each platform lists the account(s) behind it, so hovering reveals which
+  // brand owns the link (and whether there's more than one).
+  const socials = (
+    [
+      {
+        label: "Email",
+        icon: "email" as IconName,
+        accounts: [email && { name: site.brand, detail: email, href: `mailto:${email}` }],
+      },
+      {
+        label: "GitHub",
+        icon: "github" as IconName,
+        accounts: [github && { name: site.brand, detail: "@TheSerbres", href: github }],
+      },
+      {
+        label: "YouTube",
+        icon: "youtube" as IconName,
+        accounts: [
+          youtube && { name: site.brand, detail: "@serbres", href: youtube },
+          canonGenie.youtube && {
+            name: canonGenie.name,
+            detail: "@TheCanonGenie",
+            href: canonGenie.youtube,
+          },
+        ],
+      },
+      {
+        label: "Etsy",
+        icon: "etsy" as IconName,
+        accounts: [
+          etsy && {
+            name: canonGenie.name,
+            detail: "thecanongenie.etsy.com",
+            href: etsy,
+          },
+        ],
+      },
+      {
+        label: "Twitter",
+        icon: "twitter" as IconName,
+        accounts: [twitter && { name: site.brand, detail: "Twitter / X", href: twitter }],
+      },
+      {
+        label: "LinkedIn",
+        icon: "linkedin" as IconName,
+        accounts: [
+          linkedin && {
+            name: site.name,
+            detail: "@sammie-robinson",
+            href: linkedin,
+          },
+        ],
+      },
+    ] as { label: string; icon: IconName; accounts: (Account | "" | undefined)[] }[]
+  )
+    .map((s) => ({ ...s, accounts: s.accounts.filter(Boolean) as Account[] }))
+    .filter((s) => s.accounts.length > 0);
 
   return (
     <footer className="border-t border-border">
@@ -94,22 +138,14 @@ export default function Footer() {
 
         <nav className="flex flex-col gap-2.5">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">Connect</p>
-          {social.map((link) =>
-            link.icon === "youtube" && youtubeChannels.length > 1 ? (
-              <YouTubeMenu key={link.label} channels={youtubeChannels} />
-            ) : (
-              <a
-                key={link.label}
-                href={link.href}
-                target={link.href.startsWith("http") ? "_blank" : undefined}
-                rel={link.href.startsWith("http") ? "noreferrer" : undefined}
-                className="inline-flex items-center gap-2.5 text-sm text-muted transition-colors hover:text-accent"
-              >
-                <SocialIcon name={link.icon} />
-                <span>{link.label}</span>
-              </a>
-            )
-          )}
+          {socials.map((s) => (
+            <SocialMenu
+              key={s.label}
+              label={s.label}
+              icon={<SocialIcon name={s.icon} />}
+              accounts={s.accounts}
+            />
+          ))}
         </nav>
       </div>
 
