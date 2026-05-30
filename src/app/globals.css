@@ -3,7 +3,7 @@
 /* ----------------------------------------------------------------------------
    Theme tokens. Dark is the default (:root). Light overrides via [data-theme].
    Accent is reserved for actions (buttons, links, focus, hover) and shifts per
-   brand-space via [data-brand] — silver in the SERBRES space, then per brand.
+   brand-space via [data-brand]: silver in the SERBRES space, then per brand.
 ---------------------------------------------------------------------------- */
 :root {
   --bg: #0b0b0c;
@@ -38,7 +38,7 @@
    overrides the accent for its subtree; each brand also tints its own card on
    the home grid. Scoped by theme so dark and light each get a readable hue.
 ---------------------------------------------------------------------------- */
-/* The Canon Genie — purple */
+/* The Canon Genie: purple */
 [data-theme="dark"] [data-brand="canon-genie"] {
   --accent: #c084fc;
   --accent-hover: #d8b4fe;
@@ -52,7 +52,7 @@
   --glow: rgba(124, 58, 237, 0.12);
 }
 
-/* Arbitrary Life — sci-fi blue */
+/* Arbitrary Life: sci-fi blue */
 [data-theme="dark"] [data-brand="arbitrary-life"] {
   --accent: #4da6ff;
   --accent-hover: #8cc6ff;
@@ -66,7 +66,7 @@
   --glow: rgba(37, 99, 235, 0.12);
 }
 
-/* Legacy Ballot — gold */
+/* Legacy Ballot: gold */
 [data-theme="dark"] [data-brand="legacy-ballot"] {
   --accent: #f1c453;
   --accent-hover: #f8da86;

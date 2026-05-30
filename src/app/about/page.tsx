@@ -4,7 +4,7 @@ import { site, story, cv, journey } from "@/lib/site";
 import Journey from "@/components/Journey";
 
 export const metadata: Metadata = {
-  title: `About — ${site.name}`,
+  title: `About | ${site.name}`,
   description: story.lead,
 };
 
@@ -83,7 +83,7 @@ function Path() {
         )}
       </div>
       <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-        How I got from an at-risk label to leading a software team — told as it
+        How I got from an at-risk label to leading a software team, told as it
         happened. Each chapter opens as you scroll; expand any one for the full
         résumé details.
       </p>

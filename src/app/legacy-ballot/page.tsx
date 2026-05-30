@@ -3,7 +3,7 @@ import { legacyBallot as lb } from "@/lib/site";
 import BrandHero from "@/components/BrandHero";
 
 export const metadata: Metadata = {
-  title: `${lb.name} — ${lb.tagline}`,
+  title: `${lb.name} | ${lb.tagline}`,
   description: lb.blurb,
 };
 
@@ -52,7 +52,7 @@ export default function LegacyBallot() {
             </p>
             <p className="mt-3 max-w-2xl text-lg leading-relaxed text-muted">
               Rate the résumé, not your favorite. Legacy Ballot starts from what
-              actually happened — the stats, the accomplishments, the receipts — and
+              actually happened (the stats, the accomplishments, the receipts) and
               turns even the loudest narratives into numbers you can compare.
             </p>
           </div>

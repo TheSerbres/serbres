@@ -49,7 +49,7 @@ type Chapter = {
   title: string;
   narrative: readonly string[];
   images?: readonly Image[];
-  /** A plain, contained brand logo shown in the side column — no panel or caption. */
+  /** A plain, contained brand logo shown in the side column; no panel or caption. */
   logo?: Logo;
   banner?: Image;
   link?: ChapterLink;

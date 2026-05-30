@@ -3,7 +3,7 @@ import { canonGenie as cg, asset } from "@/lib/site";
 import BrandHero from "@/components/BrandHero";
 
 export const metadata: Metadata = {
-  title: `${cg.name} — ${cg.tagline}`,
+  title: `${cg.name} | ${cg.tagline}`,
   description: cg.blurb,
 };
 

@@ -3,7 +3,7 @@ import { arbitraryLife as al, asset } from "@/lib/site";
 import BrandHero from "@/components/BrandHero";
 
 export const metadata: Metadata = {
-  title: `${al.name} — ${al.tagline}`,
+  title: `${al.name} | ${al.tagline}`,
   description: al.blurb,
 };
 
@@ -77,7 +77,7 @@ export default function ArbitraryLife() {
           ) : (
             <p className="mt-6 max-w-xl text-sm leading-relaxed text-muted">
               Titles are in the works. The universe has been years in the
-              worldbuilding — the first books are on their way.
+              worldbuilding; the first books are on their way.
             </p>
           )}
 
