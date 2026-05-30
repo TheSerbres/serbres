@@ -133,18 +133,6 @@ export const journey = [
     narrative: [
       "I moved around to get there — my first two years at Cortez High School, my junior year at Trevor Brown, and then Cactus High School, where I finally walked the stage. I was the first of my siblings to earn a diploma. We graduated in the Cardinals' stadium in Glendale, and crossing that stage felt like proof that the redirect had taken hold.",
     ],
-    images: [
-      {
-        src: "/about/stadium.jpg",
-        alt: "Aerial view at dusk of the Cardinals' stadium in Glendale, Arizona",
-        caption: "Graduation day — the Cardinals' stadium in Glendale.",
-      },
-      {
-        src: "/about/vfw-speech.jpg",
-        alt: "VFW recognition ceremony with flags and the VFW emblem behind",
-        caption: "Recognized at a VFW ceremony around graduation.",
-      },
-    ],
     education: [
       {
         school: "Cactus High School",
