@@ -20,6 +20,11 @@ export default function Footer() {
             detail: email,
             href: `mailto:${email}`,
           },
+          {
+            name: site.brand,
+            detail: "theserbres@gmail.com",
+            href: "mailto:theserbres@gmail.com",
+          },
         ],
       },
       {
