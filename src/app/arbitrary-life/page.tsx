@@ -9,7 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function ArbitraryLife() {
-  const actions: { label: string; href: string; external: boolean }[] = [];
+  const actions: { label: string; href: string; external: boolean }[] = [
+    { label: "Explore the Galaxy Map", href: "/arbitrary-life/galaxy", external: false },
+  ];
   if (al.youtube)
     actions.push({ label: "Watch on YouTube", href: al.youtube, external: true });
 
