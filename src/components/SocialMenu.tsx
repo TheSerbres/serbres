@@ -101,7 +101,7 @@ export default function SocialMenu({
       {open && (
         <div
           role={multi ? "menu" : undefined}
-          className="absolute left-full top-1/2 z-50 ml-3 w-56 -translate-y-1/2 overflow-hidden rounded-xl border border-border bg-bg shadow-xl shadow-black/30 sm:left-auto sm:right-full sm:ml-0 sm:mr-3"
+          className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-bg shadow-xl shadow-black/30 sm:left-auto sm:right-full sm:top-1/2 sm:mt-0 sm:mr-3 sm:-translate-y-1/2"
         >
           {accounts.map((a) => (
             <a
