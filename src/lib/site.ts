@@ -132,6 +132,7 @@ export const journey = [
     title: "Three schools, one diploma",
     narrative: [
       "I moved around to get there: my first two years at Cortez High School, my junior year at Trevor Brown, and then Cactus High School, where I finally walked the stage. I was the first of my siblings to earn a diploma. We graduated in the Cardinals' stadium in Glendale, and crossing that stage felt like proof that the redirect had taken hold.",
+      "Three schools for one diploma. I've since learned this is just how my life works — the Serbres mark wears three heads, and three properties live under that one name. Apparently I don't do anything important until it comes in threes.",
     ],
     education: [
       {
