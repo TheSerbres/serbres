@@ -129,7 +129,7 @@ export const journey = [
   {
     id: "first-to-graduate",
     era: "2008 – 2009",
-    title: "First in my family to graduate",
+    title: "Three schools, one diploma",
     narrative: [
       "I moved around to get there: my first two years at Cortez High School, my junior year at Trevor Brown, and then Cactus High School, where I finally walked the stage. I was the first of my siblings to earn a diploma. We graduated in the Cardinals' stadium in Glendale, and crossing that stage felt like proof that the redirect had taken hold.",
     ],
