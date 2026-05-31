@@ -18,7 +18,7 @@ export default function CanonGenie() {
     actions.push({ label: "Shop on Etsy", href: cg.etsy.shopUrl, external: true });
   if (cg.youtube)
     actions.push({
-      label: "Watch the process",
+      label: "Watch on YouTube",
       href: cg.youtube,
       external: true,
       icon: "youtube",

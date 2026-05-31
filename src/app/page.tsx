@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { site, brands, asset } from "@/lib/site";
+import SocialIcon from "@/components/SocialIcon";
 
 export default function Home() {
   return (
@@ -48,8 +49,9 @@ function Hero() {
                 href={site.links.youtube}
                 target="_blank"
                 rel="noreferrer"
-                className="text-sm font-medium text-fg underline-offset-4 transition-colors hover:text-accent hover:underline"
+                className="inline-flex items-center gap-2 text-sm font-medium text-fg transition-colors hover:text-accent"
               >
+                <SocialIcon name="youtube" />
                 Watch on YouTube
               </a>
             )}
