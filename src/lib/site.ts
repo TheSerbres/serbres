@@ -15,7 +15,7 @@ export const site = {
   name: "Sammie Robinson",
   brand: "SERBRES",
   roles: ["Builder", "Designer", "Worldbuilder"],
-  greeting: "Hey, I'm Sammie",
+  greeting: "Howdy, I'm Sammie",
   tagline: "SERBRES is where everything I build comes together.",
   // One-line framing used on the home hub.
   intro:
