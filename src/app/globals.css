@@ -125,16 +125,28 @@ body {
   height: auto;
   display: block;
 }
-.gx-canvas g[id] {
-  transition: filter 0.15s ease, opacity 0.15s ease;
+.gx-canvas g,
+.gx-canvas use,
+.gx-canvas path {
+  transition: opacity 0.25s ease, filter 0.2s ease;
 }
 .gx-hover {
-  filter: brightness(1.35)
-    drop-shadow(0 0 10px var(--glow, rgba(77, 166, 255, 0.45)));
+  filter: brightness(1.3);
 }
+/* Once an arm is picked, the other arms fade back so the active one stands out.
+   Opacity composes reliably through nested SVG groups (unlike stacked filters). */
+.gx-canvas.gx-focusing .gx-dim {
+  opacity: 0.18;
+}
+/* First click: the lit arm keeps full color and gets a gentle lift, reading as
+   roughly half the province's intensity. */
+.gx-canvas.gx-focusing .gx-arm {
+  filter: brightness(1.12) saturate(1.1);
+}
+/* Second click: the chosen province pushes brighter and gains an accent glow. */
 .gx-selected {
-  filter: brightness(1.5)
-    drop-shadow(0 0 16px var(--accent, #4da6ff));
+  filter: brightness(1.5) saturate(1.2)
+    drop-shadow(0 0 14px var(--accent, #4da6ff));
 }
 
 /* Accessible focus ring on the accent color. */

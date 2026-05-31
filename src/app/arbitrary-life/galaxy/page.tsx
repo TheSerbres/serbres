@@ -20,7 +20,8 @@ export default function GalaxyMapPage() {
       </h1>
       <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
         The worlds, powers, and factions of Arbitrary Life, charted across the
-        galaxy. Hover to highlight a region, then click to read about it.
+        galaxy. Click an arm to light it up, then click again inside it to
+        highlight a single province.
       </p>
 
       <div className="mt-12">

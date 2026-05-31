@@ -10,24 +10,36 @@ import {
 
 type Found = { region: GalaxyRegion; el: SVGGElement };
 
-// Walk up from an event target to the innermost selectable region group:
-// a <g> with an `id` that isn't one of the structural wrappers.
-function findRegionGroup(
+// Selectable region groups are <g> elements with an `id` that isn't one of the
+// structural wrappers. Collect them from an event target up to the svg root,
+// ordered innermost (province) -> outermost (arm).
+function ancestorGroups(
   target: EventTarget | null,
   root: SVGSVGElement,
-): SVGGElement | null {
+): SVGGElement[] {
+  const out: SVGGElement[] = [];
   let el = target as Element | null;
   while (el && el !== root) {
-    if (
-      el instanceof SVGGElement &&
-      el.id &&
-      !EXCLUDE_IDS.has(el.id)
-    ) {
-      return el;
+    if (el instanceof SVGGElement && el.id && !EXCLUDE_IDS.has(el.id)) {
+      out.push(el);
     }
     el = el.parentElement;
   }
-  return null;
+  return out;
+}
+
+// The innermost selectable group under a target (used for hover feedback).
+function innermostGroup(
+  target: EventTarget | null,
+  root: SVGSVGElement,
+): SVGGElement | null {
+  return ancestorGroups(target, root)[0] ?? null;
+}
+
+// The outermost selectable group containing an element (its "arm").
+function armOf(el: SVGGElement, root: SVGSVGElement): SVGGElement {
+  const chain = ancestorGroups(el, root);
+  return chain[chain.length - 1] ?? el;
 }
 
 function regionForGroup(g: SVGGElement): GalaxyRegion {
@@ -35,27 +47,72 @@ function regionForGroup(g: SVGGElement): GalaxyRegion {
   return getRegion(serif && serif.trim() ? serif.trim() : g.id);
 }
 
+// Fade everything that doesn't contain the active arm. Walking up from the arm
+// and dimming each level's *other* children leaves only the arm's branch lit,
+// regardless of how loose paths or wrapper groups are nested. Opacity composes
+// predictably through the SVG tree, so this stays reliable where stacked
+// filters did not.
+function focusOnArm(arm: SVGGElement, root: SVGSVGElement) {
+  root.querySelectorAll(".gx-dim").forEach((e) => e.classList.remove("gx-dim"));
+  let node: Element = arm;
+  let parent: Element | null = arm.parentElement;
+  while (parent) {
+    for (const child of Array.from(parent.children)) {
+      if (child !== node) child.classList.add("gx-dim");
+    }
+    if (parent === root) break;
+    node = parent;
+    parent = parent.parentElement;
+  }
+}
+
 export default function GalaxyMap() {
   const hostRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const hoveredRef = useRef<SVGGElement | null>(null);
-  const selectedElRef = useRef<SVGGElement | null>(null);
+  const armElRef = useRef<SVGGElement | null>(null);
+  const provinceElRef = useRef<SVGGElement | null>(null);
   const regionMapRef = useRef<Map<string, Found>>(new Map());
 
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
   const [selected, setSelected] = useState<GalaxyRegion | null>(null);
+  const [canDrill, setCanDrill] = useState(false);
   const [regionNames, setRegionNames] = useState<string[]>([]);
 
-  // Highlight + record a selection given its group element.
-  function select(el: SVGGElement) {
-    if (selectedElRef.current && selectedElRef.current !== el) {
-      selectedElRef.current.classList.remove("gx-selected");
+  // Light the whole arm. `full` swaps the soft 50% wash for a full highlight
+  // (used when the arm has no provinces to drill into).
+  function selectArm(arm: SVGGElement, full: boolean) {
+    const svg = svgRef.current;
+    hostRef.current?.classList.add("gx-focusing");
+    // Fade everything outside the active arm's branch.
+    if (svg) focusOnArm(arm, svg);
+    if (armElRef.current && armElRef.current !== arm) {
+      armElRef.current.classList.remove("gx-arm", "gx-selected");
     }
-    el.classList.add("gx-selected");
-    selectedElRef.current = el;
-    setSelected(regionForGroup(el));
+    if (provinceElRef.current && provinceElRef.current !== arm) {
+      provinceElRef.current.classList.remove("gx-selected");
+    }
+    provinceElRef.current = full ? arm : null;
+    armElRef.current = arm;
+    arm.classList.remove("gx-arm", "gx-selected");
+    arm.classList.add(full ? "gx-selected" : "gx-arm");
+    setSelected(regionForGroup(arm));
+  }
+
+  // Highlight a single province inside the currently-lit arm.
+  function selectProvince(prov: SVGGElement) {
+    if (
+      provinceElRef.current &&
+      provinceElRef.current !== prov &&
+      provinceElRef.current !== armElRef.current
+    ) {
+      provinceElRef.current.classList.remove("gx-selected");
+    }
+    prov.classList.add("gx-selected");
+    provinceElRef.current = prov;
+    setSelected(regionForGroup(prov));
   }
 
   useEffect(() => {
@@ -91,9 +148,7 @@ export default function GalaxyMap() {
           if (!map.has(region.name)) map.set(region.name, { region, el: g });
         });
         regionMapRef.current = map;
-        setRegionNames(
-          [...map.keys()].sort((a, b) => a.localeCompare(b)),
-        );
+        setRegionNames([...map.keys()].sort((a, b) => a.localeCompare(b)));
         setStatus("ready");
       })
       .catch((err) => {
@@ -112,7 +167,7 @@ export default function GalaxyMap() {
     if (status !== "ready" || !svg) return;
 
     const onMove = (e: PointerEvent) => {
-      const g = findRegionGroup(e.target, svg);
+      const g = innermostGroup(e.target, svg);
       if (g === hoveredRef.current) return;
       if (hoveredRef.current) hoveredRef.current.classList.remove("gx-hover");
       if (g) g.classList.add("gx-hover");
@@ -125,8 +180,24 @@ export default function GalaxyMap() {
       svg.style.cursor = "default";
     };
     const onClick = (e: MouseEvent) => {
-      const g = findRegionGroup(e.target, svg);
-      if (g) select(g);
+      const groups = ancestorGroups(e.target, svg);
+      if (!groups.length) return;
+      const province = groups[0];
+      const arm = groups[groups.length - 1];
+
+      if (arm !== armElRef.current) {
+        // First click on a new arm: wash the whole arm at ~50%.
+        selectArm(arm, false);
+        setCanDrill(province !== arm);
+      } else if (province === arm) {
+        // Re-clicking an arm with no deeper province: promote to full.
+        selectArm(arm, true);
+        setCanDrill(false);
+      } else {
+        // Second click within the lit arm: highlight the province.
+        selectProvince(province);
+        setCanDrill(false);
+      }
     };
 
     svg.addEventListener("pointermove", onMove);
@@ -139,12 +210,21 @@ export default function GalaxyMap() {
     };
   }, [status]);
 
+  // Jump straight to a region from the index: light its arm and the region.
   function selectByName(name: string) {
+    const svg = svgRef.current;
     const found = regionMapRef.current.get(name);
-    if (found) {
-      select(found.el);
-      found.el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (!svg || !found) return;
+    const el = found.el;
+    const arm = armOf(el, svg);
+    if (el === arm) {
+      selectArm(arm, true);
+    } else {
+      selectArm(arm, false);
+      selectProvince(el);
     }
+    setCanDrill(false);
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
   return (
@@ -178,6 +258,11 @@ export default function GalaxyMap() {
               <p className="mt-3 text-sm leading-relaxed text-muted">
                 {selected.description || "Lore for this region is coming soon."}
               </p>
+              {canDrill && (
+                <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.15em] text-accent/80">
+                  Click again inside the arm to highlight a province.
+                </p>
+              )}
             </>
           ) : (
             <>
@@ -188,8 +273,8 @@ export default function GalaxyMap() {
                 Explore the galaxy
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-muted">
-                Hover to highlight a region, then click it to read about the
-                worlds, powers, and factions of Arbitrary Life.
+                Click an arm to light it up, then click again inside it to
+                highlight a single province and read about it.
               </p>
             </>
           )}
