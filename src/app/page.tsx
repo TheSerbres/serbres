@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { site, brands, asset } from "@/lib/site";
 import SocialIcon from "@/components/SocialIcon";
+import LogoTilt from "@/components/LogoTilt";
 
 export default function Home() {
   return (
@@ -58,21 +59,7 @@ function Hero() {
           </div>
         </div>
 
-        <div className="relative mx-auto hidden md:block">
-          <div
-            className="absolute inset-0 -z-10 rounded-full blur-3xl"
-            style={{ background: "var(--glow)" }}
-            aria-hidden="true"
-          />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={asset("/serbres-logo.svg")}
-            alt={`${site.brand} mark`}
-            className="logo-themed mx-auto w-56 lg:w-64"
-            width={256}
-            height={256}
-          />
-        </div>
+        <LogoTilt alt={`${site.brand} mark`} />
       </div>
     </section>
   );
