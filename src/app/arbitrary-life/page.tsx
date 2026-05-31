@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { arbitraryLife as al, asset } from "@/lib/site";
 import BrandHero from "@/components/BrandHero";
 
@@ -81,12 +82,34 @@ export default function ArbitraryLife() {
             </p>
           )}
 
-          <div className="mt-12 rounded-2xl border border-border bg-bg p-7">
-            <h3 className="font-semibold tracking-tight">Beyond the page</h3>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-              The same world is built to scale into YouTube graphic novels and other
-              visual formats as the story grows.
-            </p>
+          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2">
+            <div className="flex flex-col gap-2 bg-bg p-7">
+              <h3 className="font-semibold tracking-tight">Beyond the page</h3>
+              <p className="max-w-2xl text-sm leading-relaxed text-muted">
+                The same world is built to scale into YouTube graphic novels and
+                other visual formats as the story grows.
+              </p>
+            </div>
+            <Link
+              href="/arbitrary-life/galaxy"
+              className="group flex flex-col gap-2 bg-bg p-7 transition-colors hover:bg-bg-elev"
+            >
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold tracking-tight transition-colors group-hover:text-accent">
+                  Explore the Galaxy Map
+                </h3>
+                <span
+                  aria-hidden="true"
+                  className="text-accent transition-transform group-hover:translate-x-0.5"
+                >
+                  →
+                </span>
+              </div>
+              <p className="max-w-2xl text-sm leading-relaxed text-muted">
+                An interactive map of the galaxy: hover and click its regions,
+                powers, and factions to explore the universe.
+              </p>
+            </Link>
           </div>
         </div>
       </section>
