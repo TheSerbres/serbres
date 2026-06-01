@@ -80,6 +80,7 @@ export default function GalaxyMap() {
   const [selected, setSelected] = useState<GalaxyRegion | null>(null);
   const [canDrill, setCanDrill] = useState(false);
   const [regionNames, setRegionNames] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
 
   // Light the whole arm. `full` swaps the soft 50% wash for a full highlight
   // (used when the arm has no provinces to drill into).
@@ -210,6 +211,11 @@ export default function GalaxyMap() {
     };
   }, [status]);
 
+  const q = query.trim().toLowerCase();
+  const filteredNames = q
+    ? regionNames.filter((n) => n.toLowerCase().includes(q))
+    : regionNames;
+
   // Jump straight to a region from the index: light its arm and the region.
   function selectByName(name: string) {
     const svg = svgRef.current;
@@ -285,23 +291,39 @@ export default function GalaxyMap() {
             <summary className="cursor-pointer select-none font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
               All regions ({regionNames.length})
             </summary>
-            <ul className="mt-4 flex flex-wrap gap-2">
-              {regionNames.map((name) => (
-                <li key={name}>
-                  <button
-                    type="button"
-                    onClick={() => selectByName(name)}
-                    className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                      selected?.name === name
-                        ? "border-accent bg-accent text-accent-fg"
-                        : "border-border text-muted hover:border-accent hover:text-accent"
-                    }`}
-                  >
-                    {name}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="relative mt-4">
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search regions…"
+                aria-label="Search regions"
+                className="w-full rounded-full border border-border bg-bg-elev px-4 py-2 text-xs text-fg placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              />
+            </div>
+            {filteredNames.length > 0 ? (
+              <ul className="mt-4 flex flex-wrap gap-2">
+                {filteredNames.map((name) => (
+                  <li key={name}>
+                    <button
+                      type="button"
+                      onClick={() => selectByName(name)}
+                      className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                        selected?.name === name
+                          ? "border-accent bg-accent text-accent-fg"
+                          : "border-border text-muted hover:border-accent hover:text-accent"
+                      }`}
+                    >
+                      {name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 text-xs text-muted">
+                No regions match “{query.trim()}”.
+              </p>
+            )}
           </details>
         )}
       </aside>
