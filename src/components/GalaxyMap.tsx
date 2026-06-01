@@ -141,35 +141,65 @@ function focusOnArm(arm: SVGGraphicsElement, root: SVGSVGElement) {
   }
 }
 
-// A collapsible, searchable list of region chips for one category.
-function RegionList({
-  title,
-  items,
+// One searchable panel with Lands / Abyss tabs. Switching tabs clears the
+// search so each list starts fresh.
+function RegionTabs({
+  lands,
+  abyss,
   selectedName,
   onSelect,
-  defaultOpen,
 }: {
-  title: string;
-  items: Found[];
+  lands: Found[];
+  abyss: Found[];
   selectedName: string | null;
   onSelect: (f: Found) => void;
-  defaultOpen?: boolean;
 }) {
+  const [tab, setTab] = useState<"lands" | "abyss">("lands");
   const [query, setQuery] = useState("");
+
+  const items = tab === "lands" ? lands : abyss;
   const q = query.trim().toLowerCase();
   const filtered = q
     ? items.filter((f) => f.region.name.toLowerCase().includes(q))
     : items;
 
+  const tabs: { key: "lands" | "abyss"; label: string; count: number }[] = [
+    { key: "lands", label: "Lands", count: lands.length },
+    { key: "abyss", label: "Abyss", count: abyss.length },
+  ];
+
   return (
-    <details
-      open={defaultOpen}
-      className="rounded-2xl border border-border bg-bg p-6"
-    >
-      <summary className="flex cursor-pointer select-none items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-        <span>{title}</span>
-        <span className="text-muted">({items.length})</span>
-      </summary>
+    <div className="rounded-2xl border border-border bg-bg p-6">
+      <div
+        role="tablist"
+        aria-label="Region category"
+        className="flex gap-1 rounded-full border border-border bg-bg-elev p-1"
+      >
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.key}
+            onClick={() => {
+              setTab(t.key);
+              setQuery("");
+            }}
+            className={`flex-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              tab === t.key
+                ? "bg-accent text-accent-fg"
+                : "text-muted hover:text-fg"
+            }`}
+          >
+            {t.label}{" "}
+            <span
+              className={tab === t.key ? "opacity-70" : "text-muted"}
+            >
+              ({t.count})
+            </span>
+          </button>
+        ))}
+      </div>
 
       {items.length > 0 ? (
         <>
@@ -179,7 +209,7 @@ function RegionList({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search…"
-              aria-label={`Search ${title}`}
+              aria-label={`Search ${tab}`}
               className="w-full rounded-full border border-border bg-bg-elev px-4 py-2 text-xs text-fg placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
@@ -208,11 +238,9 @@ function RegionList({
           )}
         </>
       ) : (
-        <p className="mt-4 text-xs text-muted">
-          Nothing charted here yet.
-        </p>
+        <p className="mt-4 text-xs text-muted">Nothing charted here yet.</p>
       )}
-    </details>
+    </div>
   );
 }
 
@@ -520,13 +548,72 @@ export default function GalaxyMap() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,20rem)] lg:items-start">
-      <div
-        className={
-          expanded
-            ? "gx-stage fixed inset-0 z-[70] flex items-center justify-center bg-[#010206] p-4 sm:p-8"
-            : "gx-stage relative overflow-hidden rounded-2xl border border-border bg-[#010206]"
-        }
-      >
+      {/* Left column: a controls bar (legend + Pops toggle) above the map. */}
+      <div className="flex flex-col gap-4">
+        {status === "ready" && (
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-border bg-bg px-5 py-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+              Legend
+            </p>
+            <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+              <li
+                className="flex items-center gap-2"
+                title="The galaxy's arms and the provinces within them."
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 shrink-0 rounded-[4px]"
+                  style={{
+                    background:
+                      "conic-gradient(from 210deg, #4da6ff, #7c5cff, #15b8a6, #e0b341, #d9534f, #4da6ff)",
+                  }}
+                />
+                <span className="font-medium">Lands</span>
+              </li>
+              <li
+                className="flex items-center gap-2"
+                title="The space between and beyond the arms, where travel works differently."
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 shrink-0 rounded-[4px] ring-1 ring-inset ring-white/15"
+                  style={{ background: "#0a1b2b" }}
+                />
+                <span className="font-medium">Abyss</span>
+              </li>
+              <li
+                className="flex items-center gap-2"
+                title="Populations: planets, settlements, corporate sites, and other points of interest."
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-2.5 w-2.5 shrink-0 rounded-full bg-white shadow-[0_0_6px_2px_rgba(255,255,255,0.5)]"
+                />
+                <span className="font-medium">Pops</span>
+              </li>
+            </ul>
+            <label className="ml-auto flex cursor-pointer items-center gap-3 text-sm">
+              <input
+                type="checkbox"
+                checked={showPops}
+                onChange={(e) => setShowPops(e.target.checked)}
+                className="h-4 w-4 shrink-0 accent-[var(--accent)]"
+              />
+              <span className="font-medium">Show Pops</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
+                {showPops ? "On" : "Off"}
+              </span>
+            </label>
+          </div>
+        )}
+
+        <div
+          className={
+            expanded
+              ? "gx-stage fixed inset-0 z-[70] flex items-center justify-center bg-[#010206] p-4 sm:p-8"
+              : "gx-stage relative overflow-hidden rounded-2xl border border-border bg-[#010206]"
+          }
+        >
         {/* Deep-space backdrop (shows through the disk's gaps). */}
         <div className="gx-stage-bg" aria-hidden="true" />
 
@@ -635,6 +722,7 @@ export default function GalaxyMap() {
             Where is Earth?
           </button>
         )}
+        </div>
       </div>
 
       <aside className="flex flex-col gap-5">
@@ -676,86 +764,12 @@ export default function GalaxyMap() {
         </div>
 
         {status === "ready" && (
-          <>
-            <RegionList
-              title="All Lands"
-              items={lands}
-              selectedName={selected?.name ?? null}
-              onSelect={selectFound}
-            />
-            <RegionList
-              title="All Abyss"
-              items={abyss}
-              selectedName={selected?.name ?? null}
-              onSelect={selectFound}
-            />
-
-            {/* Detail-layer toggle */}
-            <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-bg p-5 text-sm">
-              <input
-                type="checkbox"
-                checked={showPops}
-                onChange={(e) => setShowPops(e.target.checked)}
-                className="h-4 w-4 shrink-0 accent-[var(--accent)]"
-              />
-              <span className="font-medium">Show Pops</span>
-              <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
-                {showPops ? "On" : "Off"}
-              </span>
-            </label>
-
-            {/* Legend */}
-            <div className="rounded-2xl border border-border bg-bg p-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-                Legend
-              </p>
-              <ul className="mt-4 flex flex-col gap-4">
-                <li className="flex items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded-[5px]"
-                    style={{
-                      background:
-                        "conic-gradient(from 210deg, #4da6ff, #7c5cff, #15b8a6, #e0b341, #d9534f, #4da6ff)",
-                    }}
-                  />
-                  <div>
-                    <p className="text-sm font-medium">Lands</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted">
-                      The galaxy&rsquo;s arms and the provinces within them.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded-[5px] ring-1 ring-inset ring-white/15"
-                    style={{ background: "#0a1b2b" }}
-                  />
-                  <div>
-                    <p className="text-sm font-medium">Abyss</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted">
-                      The space between and beyond the arms, where travel works
-                      differently.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-white shadow-[0_0_6px_2px_rgba(255,255,255,0.5)]"
-                  />
-                  <div>
-                    <p className="text-sm font-medium">Pops</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted">
-                      Populations: planets, settlements, corporate sites, and
-                      other points of interest. Toggle off to hide them.
-                    </p>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </>
+          <RegionTabs
+            lands={lands}
+            abyss={abyss}
+            selectedName={selected?.name ?? null}
+            onSelect={selectFound}
+          />
         )}
       </aside>
     </div>
