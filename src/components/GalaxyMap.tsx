@@ -194,6 +194,28 @@ export default function GalaxyMap() {
   const [showPops, setShowPops] = useState(true);
   const [expanded, setExpanded] = useState(false);
 
+  // Smoothly zoom the map toward a region: center it in the view and scale up.
+  // Measuring the element against the svg's own rect makes the fractions
+  // transform-invariant, so each call recomputes one absolute transform and the
+  // CSS transition animates cleanly from wherever the map currently sits.
+  function zoomTo(el: SVGGElement) {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const sr = svg.getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    if (!sr.width || !sr.height || !er.width) return;
+    const cx = (er.left + er.width / 2 - sr.left) / sr.width;
+    const cy = (er.top + er.height / 2 - sr.top) / sr.height;
+    const fracW = er.width / sr.width;
+    const fracH = er.height / sr.height;
+    // Fill ~55% of the view with the region, but keep the zoom gentle.
+    let scale = 0.55 / Math.max(fracW, fracH, 0.001);
+    scale = Math.max(1.3, Math.min(scale, 2.4));
+    const tx = (0.5 - cx * scale) * 100;
+    const ty = (0.5 - cy * scale) * 100;
+    svg.style.transform = `translate(${tx}%, ${ty}%) scale(${scale})`;
+  }
+
   // Light a whole shape. `full` swaps the soft ~50% wash for a full highlight
   // (used for the second click on an arm, or any single-click abyss shape).
   function selectArm(arm: SVGGElement, full: boolean) {
@@ -211,6 +233,7 @@ export default function GalaxyMap() {
     arm.classList.remove("gx-arm", "gx-selected");
     arm.classList.add(full ? "gx-selected" : "gx-arm");
     setSelected(regionForGroup(arm));
+    zoomTo(arm);
   }
 
   // Highlight a single province inside the currently-lit arm.
@@ -225,6 +248,7 @@ export default function GalaxyMap() {
     prov.classList.add("gx-selected");
     provinceElRef.current = prov;
     setSelected(regionForGroup(prov));
+    zoomTo(prov);
   }
 
   useEffect(() => {
@@ -414,7 +438,7 @@ export default function GalaxyMap() {
             replace its contents with the fetched SVG via innerHTML. */}
         <div
           ref={hostRef}
-          className={`gx-canvas relative z-[1] w-full ${expanded ? "max-h-full max-w-6xl" : ""}`}
+          className={`gx-canvas relative z-[1] w-full overflow-hidden ${expanded ? "max-h-full max-w-6xl" : ""}`}
         />
 
         {/* Core bloom + rim vignette over the map. */}
