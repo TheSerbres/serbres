@@ -251,6 +251,25 @@ export default function GalaxyMap() {
     zoomTo(prov);
   }
 
+  // Zoom back out and clear the selection — the "reverse" of selecting. Wired to
+  // both a clicked empty area and the Reset button.
+  function resetView() {
+    const svg = svgRef.current;
+    if (svg) {
+      svg.style.transform = "";
+      svg.querySelectorAll(".gx-dim").forEach((e) =>
+        e.classList.remove("gx-dim"),
+      );
+    }
+    armElRef.current?.classList.remove("gx-arm", "gx-selected");
+    provinceElRef.current?.classList.remove("gx-selected");
+    armElRef.current = null;
+    provinceElRef.current = null;
+    hostRef.current?.classList.remove("gx-focusing");
+    setSelected(null);
+    setCanDrill(false);
+  }
+
   useEffect(() => {
     let cancelled = false;
     const host = hostRef.current;
@@ -357,7 +376,11 @@ export default function GalaxyMap() {
     };
     const onClick = (e: MouseEvent) => {
       const groups = ancestorGroups(e.target, svg);
-      if (!groups.length) return;
+      // Clicking empty space (the deep-space gaps between arms) zooms back out.
+      if (!groups.length) {
+        resetView();
+        return;
+      }
       const province = groups[0];
       const arm = groups[groups.length - 1];
 
@@ -443,6 +466,30 @@ export default function GalaxyMap() {
 
         {/* Core bloom + rim vignette over the map. */}
         <div className="gx-stage-glow" aria-hidden="true" />
+
+        {status === "ready" && selected && (
+          <button
+            type="button"
+            onClick={resetView}
+            aria-label="Reset view"
+            title="Reset view"
+            className="absolute left-3 top-3 z-10 flex h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-black/40 px-3 text-xs font-medium text-white/90 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5" />
+            </svg>
+            Reset
+          </button>
+        )}
 
         {status === "ready" && (
           <button
