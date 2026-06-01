@@ -125,6 +125,86 @@ body {
   height: auto;
   display: block;
 }
+
+/* ----------------------------------------------------------------------------
+   Galaxy stage. The map artwork is already disk-shaped with a warm core and
+   transparent gaps between the arms. These layers drop it onto deep space and
+   push the washed pastel tones into a luminous read: a near-black nebula
+   backdrop shows through the gaps, a tone filter sinks the inter-arm haze while
+   the core and star-forming knots stay bright, a soft bloom lights the core,
+   and a vignette deepens the rim — so the whole thing reads as a galaxy.
+---------------------------------------------------------------------------- */
+.gx-stage {
+  isolation: isolate;
+}
+
+/* Deep-space backdrop + sparse star sprinkle, behind the map. */
+.gx-stage-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 90% at 50% 48%,
+      rgba(46, 64, 128, 0.22),
+      rgba(10, 16, 40, 0) 55%
+    ),
+    radial-gradient(140% 120% at 50% 50%, #070b1a 0%, #04060f 60%, #010206 100%);
+}
+.gx-stage-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, #ffffff, transparent),
+    radial-gradient(1px 1px at 78% 14%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1.5px 1.5px at 36% 68%, #cfe0ff, transparent),
+    radial-gradient(1px 1px at 88% 72%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 60% 34%, #ffffff, transparent),
+    radial-gradient(1px 1px at 24% 86%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.5px 1.5px at 92% 40%, #ffe9c8, transparent),
+    radial-gradient(1px 1px at 50% 92%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 6% 60%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 70% 88%, rgba(207, 224, 255, 0.7), transparent);
+}
+
+/* Lift the disk into a luminous, higher-contrast read. */
+.gx-stage .gx-canvas svg {
+  filter: brightness(0.9) contrast(1.34) saturate(1.5);
+}
+
+/* Core bloom + rim vignette, over the map. */
+.gx-stage-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.gx-stage-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    24% 20% at 50% 49%,
+    rgba(255, 242, 214, 0.6),
+    rgba(255, 208, 150, 0.2) 45%,
+    transparent 72%
+  );
+  mix-blend-mode: screen;
+}
+.gx-stage-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    130% 120% at 50% 50%,
+    transparent 52%,
+    rgba(2, 4, 10, 0.5) 84%,
+    rgba(1, 2, 6, 0.85) 100%
+  );
+}
 .gx-canvas g,
 .gx-canvas use,
 .gx-canvas path {

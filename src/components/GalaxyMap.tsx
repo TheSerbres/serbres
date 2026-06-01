@@ -393,10 +393,13 @@ export default function GalaxyMap() {
       <div
         className={
           expanded
-            ? "fixed inset-0 z-[70] flex items-center justify-center bg-[#04121f] p-4 sm:p-8"
-            : "relative overflow-hidden rounded-2xl border border-border bg-[#04121f]"
+            ? "gx-stage fixed inset-0 z-[70] flex items-center justify-center bg-[#010206] p-4 sm:p-8"
+            : "gx-stage relative overflow-hidden rounded-2xl border border-border bg-[#010206]"
         }
       >
+        {/* Deep-space backdrop (shows through the disk's gaps). */}
+        <div className="gx-stage-bg" aria-hidden="true" />
+
         {status === "loading" && (
           <div className="flex aspect-[6692/5438] items-center justify-center text-sm text-muted">
             Charting the galaxy…
@@ -411,8 +414,11 @@ export default function GalaxyMap() {
             replace its contents with the fetched SVG via innerHTML. */}
         <div
           ref={hostRef}
-          className={`gx-canvas w-full ${expanded ? "max-h-full max-w-6xl" : ""}`}
+          className={`gx-canvas relative z-[1] w-full ${expanded ? "max-h-full max-w-6xl" : ""}`}
         />
+
+        {/* Core bloom + rim vignette over the map. */}
+        <div className="gx-stage-glow" aria-hidden="true" />
 
         {status === "ready" && (
           <button
