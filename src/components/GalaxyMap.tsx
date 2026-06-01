@@ -3,11 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { asset } from "@/lib/site";
 import {
-  EXCLUDE_IDS,
   CATEGORY_CONTAINER,
-  POPS_ID,
-  isDefId,
-  getRegion,
+  isSelectableRegion,
+  resolveRegion,
   type GalaxyRegion,
   type RegionCategory,
 } from "@/lib/galaxy";
@@ -30,9 +28,7 @@ function ancestorGroups(
   while (el && el !== root) {
     if (
       el instanceof SVGGElement &&
-      el.id &&
-      !EXCLUDE_IDS.has(el.id) &&
-      !isDefId(el.id)
+      isSelectableRegion(el.id, el.getAttribute("serif:id"))
     ) {
       out.push(el);
     }
@@ -67,12 +63,16 @@ function categoryOf(el: Element, root: SVGSVGElement): RegionCategory {
   return "land";
 }
 
-// Pop markers live inside the Pops container; they're a detail layer, not
-// selectable regions.
+// True when a Pops layer (the populations detail) sits anywhere above this
+// element — so labeled pop markers don't get mistaken for real regions.
+function isPopsLayer(el: Element): boolean {
+  const serif = el.getAttribute("serif:id");
+  return serif === "Pops" || el.id === "Pops" || /^Pops\d*$/.test(el.id);
+}
 function isInsidePops(el: Element, root: SVGSVGElement): boolean {
-  let node: Element | null = el;
+  let node: Element | null = el.parentElement;
   while (node && node !== root) {
-    if (node.id === POPS_ID) return true;
+    if (isPopsLayer(node)) return true;
     node = node.parentElement;
   }
   return false;
@@ -80,7 +80,7 @@ function isInsidePops(el: Element, root: SVGSVGElement): boolean {
 
 function regionForGroup(g: SVGGElement): GalaxyRegion {
   const serif = g.getAttribute("serif:id");
-  return getRegion(serif && serif.trim() ? serif.trim() : g.id);
+  return resolveRegion(serif && serif.trim() ? serif.trim() : g.id);
 }
 
 // Fade everything that doesn't contain the active shape. Walking up from it and
@@ -251,12 +251,19 @@ export default function GalaxyMap() {
         svg.setAttribute("role", "img");
         svg.setAttribute("aria-label", "Map of the Arbitrary Life galaxy");
 
+        // Tag the populations detail layer so the "Show Pops" toggle can hide
+        // it. Pops are scattered as per-holding layers (serif:id="Pops"), not a
+        // single container.
+        svg.querySelectorAll<SVGGElement>("g").forEach((g) => {
+          if (isPopsLayer(g)) g.classList.add("gx-pop");
+        });
+
         // Build the name -> {region, element, category} index, splitting shapes
         // into Lands and Abyss by their container and skipping pop markers,
-        // structural wrappers, and gradient defs.
+        // paint/marker layers, and gradient defs.
         const map = new Map<string, Found>();
         svg.querySelectorAll<SVGGElement>("g[id]").forEach((g) => {
-          if (EXCLUDE_IDS.has(g.id) || isDefId(g.id)) return;
+          if (!isSelectableRegion(g.id, g.getAttribute("serif:id"))) return;
           if (isInsidePops(g, svg)) return;
           const region = regionForGroup(g);
           if (map.has(region.name)) return;

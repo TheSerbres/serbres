@@ -36,6 +36,99 @@ export function isDefId(id: string): boolean {
   return /^_/.test(id);
 }
 
+// Paint/marker sub-layers inside a holding. These carry a `serif:id` like
+// "Districts", "Pops", "Capital", "Border", "Blank", a bare number (district
+// pieces), or the legend — never a real place, so they are not selectable and
+// don't appear in the region lists.
+const STRUCTURAL_LABELS = new Set([
+  "Districts",
+  "Pops",
+  "Blank",
+  "Border",
+  "Capital",
+  "LEGEND (Race)",
+]);
+
+export function isStructuralLabel(label: string): boolean {
+  const t = label.trim();
+  if (!t) return false;
+  if (STRUCTURAL_LABELS.has(t)) return true;
+  if (/^\d+$/.test(t)) return true; // numbered district pieces
+  if (/^(Blank|Districts|Capital|Border|Pops)\d*$/.test(t)) return true;
+  return false;
+}
+
+// Organizational grouping layers that sit ABOVE the drillable "arm". An arm is
+// an Imperial-level power (e.g. The League); the layers that merely bundle many
+// powers together — the Race tier and the messy synonyms Serif exported for it
+// (Sentients:/Sovereign:/Arbiter:), plus the political/legend scaffolding —
+// must never be selectable as a region or chosen as an arm. Excluding them lets
+// the outermost *real* entity (The League) anchor the arm → province drill.
+const GROUPING_PREFIXES = new Set([
+  "Race",
+  "Sentients",
+  "Sovereign",
+  "Arbiter",
+]);
+const GROUPING_IDS = new Set(["Political", "Arms", "Race"]);
+
+export function isGroupingLabel(label: string): boolean {
+  const t = label.trim();
+  if (!t) return false;
+  if (GROUPING_IDS.has(t)) return true;
+  const m = t.match(/^([A-Za-z]+):\s*(.+)$/);
+  return !!m && GROUPING_PREFIXES.has(m[1]);
+}
+
+// Whether a <g> represents a selectable place. Prefer the serif:id label when
+// present (it's the clean authored name); otherwise fall back to the id.
+export function isSelectableRegion(
+  id: string,
+  serifId: string | null,
+): boolean {
+  if (!id) return false;
+  if (EXCLUDE_IDS.has(id) || isDefId(id)) return false;
+  if (GROUPING_IDS.has(id)) return false;
+  const label = serifId && serifId.trim() ? serifId.trim() : id;
+  if (isStructuralLabel(label)) return false;
+  if (isGroupingLabel(label)) return false;
+  return true;
+}
+
+// Holding labels can be prefixed with a hierarchy level, e.g.
+// "Imperial: Congregation" or "Regional: The Forge". Split that into a clean
+// display name and the level (used as the panel's "kind").
+const HIERARCHY_LEVELS = new Set([
+  "Race",
+  "Imperial",
+  "Regional",
+  "Provincial",
+  "District",
+  "Sovereign",
+  "Sentients",
+  "Arbiter",
+]);
+
+export function parseRegionLabel(raw: string): { name: string; kind?: string } {
+  const m = raw.match(/^([A-Za-z]+):\s*(.+)$/);
+  if (m && HIERARCHY_LEVELS.has(m[1])) {
+    return { name: cleanRegionName(m[2]), kind: m[1] };
+  }
+  return { name: cleanRegionName(raw) };
+}
+
+// Resolve a raw label (serif:id or id) into a full region: clean name, the
+// level/kind (from a prefix or the lore table), and any lore description.
+export function resolveRegion(raw: string): GalaxyRegion {
+  const { name, kind } = parseRegionLabel(raw);
+  const lore = GALAXY_REGIONS[name.toLowerCase()];
+  return {
+    name,
+    kind: kind ?? lore?.kind ?? "Region",
+    description: lore?.description ?? "",
+  };
+}
+
 // Turn a raw id (e.g. "Varro1", "Kiran-Republic", "middle-world") into a clean
 // display name. Mirrors the normalization used to build the region inventory:
 // strip trailing digits, hyphens to spaces, title-case each word.

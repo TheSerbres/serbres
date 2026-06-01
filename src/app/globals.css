@@ -149,8 +149,8 @@ body {
     drop-shadow(0 0 14px var(--accent, #4da6ff));
 }
 /* "Show Pops" toggle: hide the populations detail layer (planets, settlements,
-   corporate sites, etc.). */
-.gx-canvas.gx-hide-pops [id="Pops"] {
+   corporate sites, etc.). Pops layers are tagged with .gx-pop on load. */
+.gx-canvas.gx-hide-pops .gx-pop {
   display: none;
 }
 
