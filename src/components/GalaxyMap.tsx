@@ -192,6 +192,7 @@ export default function GalaxyMap() {
   const [lands, setLands] = useState<Found[]>([]);
   const [abyss, setAbyss] = useState<Found[]>([]);
   const [showPops, setShowPops] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   // Light a whole shape. `full` swaps the soft ~50% wash for a full highlight
   // (used for the second click on an arm, or any single-click abyss shape).
@@ -290,6 +291,21 @@ export default function GalaxyMap() {
     hostRef.current?.classList.toggle("gx-hide-pops", !showPops);
   }, [showPops, status]);
 
+  // Fullscreen overlay: Escape exits, and the page scroll locks while open.
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [expanded]);
+
   // Pointer interactions, attached once the svg is in the DOM.
   useEffect(() => {
     const svg = svgRef.current;
@@ -367,7 +383,13 @@ export default function GalaxyMap() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,20rem)] lg:items-start">
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-[#04121f]">
+      <div
+        className={
+          expanded
+            ? "fixed inset-0 z-[70] flex items-center justify-center bg-[#04121f] p-4 sm:p-8"
+            : "relative overflow-hidden rounded-2xl border border-border bg-[#04121f]"
+        }
+      >
         {status === "loading" && (
           <div className="flex aspect-[6692/5438] items-center justify-center text-sm text-muted">
             Charting the galaxy…
@@ -380,7 +402,48 @@ export default function GalaxyMap() {
         )}
         {/* React never renders children into this node, so it is safe to
             replace its contents with the fetched SVG via innerHTML. */}
-        <div ref={hostRef} className="gx-canvas w-full" />
+        <div
+          ref={hostRef}
+          className={`gx-canvas w-full ${expanded ? "max-h-full max-w-6xl" : ""}`}
+        />
+
+        {status === "ready" && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-label={expanded ? "Exit fullscreen" : "Expand map to fullscreen"}
+            title={expanded ? "Exit fullscreen (Esc)" : "Expand to fullscreen"}
+            className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-black/40 text-white/90 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
+          >
+            {expanded ? (
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
+            )}
+          </button>
+        )}
       </div>
 
       <aside className="flex flex-col gap-5">
