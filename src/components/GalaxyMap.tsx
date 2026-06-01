@@ -4,11 +4,19 @@ import { useEffect, useRef, useState } from "react";
 import { asset } from "@/lib/site";
 import {
   EXCLUDE_IDS,
+  CATEGORY_CONTAINER,
+  POPS_ID,
+  isDefId,
   getRegion,
   type GalaxyRegion,
+  type RegionCategory,
 } from "@/lib/galaxy";
 
-type Found = { region: GalaxyRegion; el: SVGGElement };
+type Found = {
+  region: GalaxyRegion;
+  el: SVGGElement;
+  category: RegionCategory;
+};
 
 // Selectable region groups are <g> elements with an `id` that isn't one of the
 // structural wrappers. Collect them from an event target up to the svg root,
@@ -20,7 +28,12 @@ function ancestorGroups(
   const out: SVGGElement[] = [];
   let el = target as Element | null;
   while (el && el !== root) {
-    if (el instanceof SVGGElement && el.id && !EXCLUDE_IDS.has(el.id)) {
+    if (
+      el instanceof SVGGElement &&
+      el.id &&
+      !EXCLUDE_IDS.has(el.id) &&
+      !isDefId(el.id)
+    ) {
       out.push(el);
     }
     el = el.parentElement;
@@ -42,16 +55,38 @@ function armOf(el: SVGGElement, root: SVGSVGElement): SVGGElement {
   return chain[chain.length - 1] ?? el;
 }
 
+// Decide which category a shape belongs to by walking up to the first
+// Lands/Abyss container. Defaults to land for anything outside the Abyss.
+function categoryOf(el: Element, root: SVGSVGElement): RegionCategory {
+  let node: Element | null = el;
+  while (node && node !== root) {
+    const cat = CATEGORY_CONTAINER[node.id];
+    if (cat) return cat;
+    node = node.parentElement;
+  }
+  return "land";
+}
+
+// Pop markers live inside the Pops container; they're a detail layer, not
+// selectable regions.
+function isInsidePops(el: Element, root: SVGSVGElement): boolean {
+  let node: Element | null = el;
+  while (node && node !== root) {
+    if (node.id === POPS_ID) return true;
+    node = node.parentElement;
+  }
+  return false;
+}
+
 function regionForGroup(g: SVGGElement): GalaxyRegion {
   const serif = g.getAttribute("serif:id");
   return getRegion(serif && serif.trim() ? serif.trim() : g.id);
 }
 
-// Fade everything that doesn't contain the active arm. Walking up from the arm
-// and dimming each level's *other* children leaves only the arm's branch lit,
-// regardless of how loose paths or wrapper groups are nested. Opacity composes
-// predictably through the SVG tree, so this stays reliable where stacked
-// filters did not.
+// Fade everything that doesn't contain the active shape. Walking up from it and
+// dimming each level's *other* children leaves only its branch lit, regardless
+// of how loosely paths/wrappers are nested. Opacity composes predictably
+// through the SVG tree, so this stays reliable where stacked filters did not.
 function focusOnArm(arm: SVGGElement, root: SVGSVGElement) {
   root.querySelectorAll(".gx-dim").forEach((e) => e.classList.remove("gx-dim"));
   let node: Element = arm;
@@ -64,6 +99,81 @@ function focusOnArm(arm: SVGGElement, root: SVGSVGElement) {
     node = parent;
     parent = parent.parentElement;
   }
+}
+
+// A collapsible, searchable list of region chips for one category.
+function RegionList({
+  title,
+  items,
+  selectedName,
+  onSelect,
+  defaultOpen,
+}: {
+  title: string;
+  items: Found[];
+  selectedName: string | null;
+  onSelect: (f: Found) => void;
+  defaultOpen?: boolean;
+}) {
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? items.filter((f) => f.region.name.toLowerCase().includes(q))
+    : items;
+
+  return (
+    <details
+      open={defaultOpen}
+      className="rounded-2xl border border-border bg-bg p-6"
+    >
+      <summary className="flex cursor-pointer select-none items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+        <span>{title}</span>
+        <span className="text-muted">({items.length})</span>
+      </summary>
+
+      {items.length > 0 ? (
+        <>
+          <div className="relative mt-4">
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search…"
+              aria-label={`Search ${title}`}
+              className="w-full rounded-full border border-border bg-bg-elev px-4 py-2 text-xs text-fg placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+          {filtered.length > 0 ? (
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {filtered.map((f) => (
+                <li key={f.region.name}>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(f)}
+                    className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                      selectedName === f.region.name
+                        ? "border-accent bg-accent text-accent-fg"
+                        : "border-border text-muted hover:border-accent hover:text-accent"
+                    }`}
+                  >
+                    {f.region.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-4 text-xs text-muted">
+              No matches for “{query.trim()}”.
+            </p>
+          )}
+        </>
+      ) : (
+        <p className="mt-4 text-xs text-muted">
+          Nothing charted here yet.
+        </p>
+      )}
+    </details>
+  );
 }
 
 export default function GalaxyMap() {
@@ -79,15 +189,15 @@ export default function GalaxyMap() {
   );
   const [selected, setSelected] = useState<GalaxyRegion | null>(null);
   const [canDrill, setCanDrill] = useState(false);
-  const [regionNames, setRegionNames] = useState<string[]>([]);
-  const [query, setQuery] = useState("");
+  const [lands, setLands] = useState<Found[]>([]);
+  const [abyss, setAbyss] = useState<Found[]>([]);
+  const [showPops, setShowPops] = useState(true);
 
-  // Light the whole arm. `full` swaps the soft 50% wash for a full highlight
-  // (used when the arm has no provinces to drill into).
+  // Light a whole shape. `full` swaps the soft ~50% wash for a full highlight
+  // (used for the second click on an arm, or any single-click abyss shape).
   function selectArm(arm: SVGGElement, full: boolean) {
     const svg = svgRef.current;
     hostRef.current?.classList.add("gx-focusing");
-    // Fade everything outside the active arm's branch.
     if (svg) focusOnArm(arm, svg);
     if (armElRef.current && armElRef.current !== arm) {
       armElRef.current.classList.remove("gx-arm", "gx-selected");
@@ -140,16 +250,28 @@ export default function GalaxyMap() {
         svg.setAttribute("role", "img");
         svg.setAttribute("aria-label", "Map of the Arbitrary Life galaxy");
 
-        // Build the name -> {region, element} index for the region list and
-        // dedupe duplicate ids/names.
+        // Build the name -> {region, element, category} index, splitting shapes
+        // into Lands and Abyss by their container and skipping pop markers,
+        // structural wrappers, and gradient defs.
         const map = new Map<string, Found>();
         svg.querySelectorAll<SVGGElement>("g[id]").forEach((g) => {
-          if (EXCLUDE_IDS.has(g.id)) return;
+          if (EXCLUDE_IDS.has(g.id) || isDefId(g.id)) return;
+          if (isInsidePops(g, svg)) return;
           const region = regionForGroup(g);
-          if (!map.has(region.name)) map.set(region.name, { region, el: g });
+          if (map.has(region.name)) return;
+          map.set(region.name, {
+            region,
+            el: g,
+            category: categoryOf(g, svg),
+          });
         });
         regionMapRef.current = map;
-        setRegionNames([...map.keys()].sort((a, b) => a.localeCompare(b)));
+
+        const all = [...map.values()];
+        const byName = (a: Found, b: Found) =>
+          a.region.name.localeCompare(b.region.name);
+        setLands(all.filter((f) => f.category === "land").sort(byName));
+        setAbyss(all.filter((f) => f.category === "abyss").sort(byName));
         setStatus("ready");
       })
       .catch((err) => {
@@ -161,6 +283,12 @@ export default function GalaxyMap() {
       cancelled = true;
     };
   }, []);
+
+  // Toggle the Pops detail layer on/off.
+  useEffect(() => {
+    if (status !== "ready") return;
+    hostRef.current?.classList.toggle("gx-hide-pops", !showPops);
+  }, [showPops, status]);
 
   // Pointer interactions, attached once the svg is in the DOM.
   useEffect(() => {
@@ -186,16 +314,21 @@ export default function GalaxyMap() {
       const province = groups[0];
       const arm = groups[groups.length - 1];
 
+      // Abyss shapes are single-click: highlight just the clicked shape.
+      if (categoryOf(province, svg) === "abyss") {
+        selectArm(province, true);
+        setCanDrill(false);
+        return;
+      }
+
+      // Lands keep the two-stage arm -> province drill.
       if (arm !== armElRef.current) {
-        // First click on a new arm: wash the whole arm at ~50%.
         selectArm(arm, false);
         setCanDrill(province !== arm);
       } else if (province === arm) {
-        // Re-clicking an arm with no deeper province: promote to full.
         selectArm(arm, true);
         setCanDrill(false);
       } else {
-        // Second click within the lit arm: highlight the province.
         selectProvince(province);
         setCanDrill(false);
       }
@@ -211,23 +344,22 @@ export default function GalaxyMap() {
     };
   }, [status]);
 
-  const q = query.trim().toLowerCase();
-  const filteredNames = q
-    ? regionNames.filter((n) => n.toLowerCase().includes(q))
-    : regionNames;
-
-  // Jump straight to a region from the index: light its arm and the region.
-  function selectByName(name: string) {
+  // Jump straight to a shape from a list. Abyss shapes are a single full
+  // highlight; lands light the arm (and province, when the shape is nested).
+  function selectFound(f: Found) {
     const svg = svgRef.current;
-    const found = regionMapRef.current.get(name);
-    if (!svg || !found) return;
-    const el = found.el;
-    const arm = armOf(el, svg);
-    if (el === arm) {
-      selectArm(arm, true);
+    if (!svg) return;
+    const el = f.el;
+    if (f.category === "abyss") {
+      selectArm(el, true);
     } else {
-      selectArm(arm, false);
-      selectProvince(el);
+      const arm = armOf(el, svg);
+      if (el === arm) {
+        selectArm(arm, true);
+      } else {
+        selectArm(arm, false);
+        selectProvince(el);
+      }
     }
     setCanDrill(false);
     el.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -280,51 +412,93 @@ export default function GalaxyMap() {
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-muted">
                 Click an arm to light it up, then click again inside it to
-                highlight a single province and read about it.
+                highlight a province. Abyss shapes select with a single click.
               </p>
             </>
           )}
         </div>
 
-        {regionNames.length > 0 && (
-          <details className="rounded-2xl border border-border bg-bg p-6">
-            <summary className="cursor-pointer select-none font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-              All regions ({regionNames.length})
-            </summary>
-            <div className="relative mt-4">
+        {status === "ready" && (
+          <>
+            <RegionList
+              title="All Lands"
+              items={lands}
+              selectedName={selected?.name ?? null}
+              onSelect={selectFound}
+            />
+            <RegionList
+              title="All Abyss"
+              items={abyss}
+              selectedName={selected?.name ?? null}
+              onSelect={selectFound}
+            />
+
+            {/* Detail-layer toggle */}
+            <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-bg p-5 text-sm">
               <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search regions…"
-                aria-label="Search regions"
-                className="w-full rounded-full border border-border bg-bg-elev px-4 py-2 text-xs text-fg placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                type="checkbox"
+                checked={showPops}
+                onChange={(e) => setShowPops(e.target.checked)}
+                className="h-4 w-4 shrink-0 accent-[var(--accent)]"
               />
-            </div>
-            {filteredNames.length > 0 ? (
-              <ul className="mt-4 flex flex-wrap gap-2">
-                {filteredNames.map((name) => (
-                  <li key={name}>
-                    <button
-                      type="button"
-                      onClick={() => selectByName(name)}
-                      className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                        selected?.name === name
-                          ? "border-accent bg-accent text-accent-fg"
-                          : "border-border text-muted hover:border-accent hover:text-accent"
-                      }`}
-                    >
-                      {name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-4 text-xs text-muted">
-                No regions match “{query.trim()}”.
+              <span className="font-medium">Show Pops</span>
+              <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
+                {showPops ? "On" : "Off"}
+              </span>
+            </label>
+
+            {/* Legend */}
+            <div className="rounded-2xl border border-border bg-bg p-6">
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+                Legend
               </p>
-            )}
-          </details>
+              <ul className="mt-4 flex flex-col gap-4">
+                <li className="flex items-start gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded-[5px]"
+                    style={{
+                      background:
+                        "conic-gradient(from 210deg, #4da6ff, #7c5cff, #15b8a6, #e0b341, #d9534f, #4da6ff)",
+                    }}
+                  />
+                  <div>
+                    <p className="text-sm font-medium">Lands</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted">
+                      The galaxy&rsquo;s arms and the provinces within them.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded-[5px] ring-1 ring-inset ring-white/15"
+                    style={{ background: "#0a1b2b" }}
+                  />
+                  <div>
+                    <p className="text-sm font-medium">Abyss</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted">
+                      The space between and beyond the arms, where travel works
+                      differently.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-white shadow-[0_0_6px_2px_rgba(255,255,255,0.5)]"
+                  />
+                  <div>
+                    <p className="text-sm font-medium">Pops</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted">
+                      Populations: planets, settlements, corporate sites, and
+                      other points of interest. Toggle off to hide them.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </>
         )}
       </aside>
     </div>

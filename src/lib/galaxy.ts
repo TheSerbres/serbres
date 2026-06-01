@@ -11,7 +11,30 @@ export const EXCLUDE_IDS = new Set([
   "Layer2",
   "Not",
   "Raids",
+  "Pops",
 ]);
+
+// The two top-level shape categories. Lands are the galaxy's arms (and the
+// provinces nested within them); the Abyss is the space between and beyond the
+// arms, where travel works differently. A shape's category is decided by which
+// of these container groups it descends from in the SVG.
+export type RegionCategory = "land" | "abyss";
+
+export const CATEGORY_CONTAINER: Record<string, RegionCategory> = {
+  Lands: "land",
+  Abyss: "abyss",
+};
+
+// "Pops" (populations: planets, settlements, corporate sites, and other points
+// of interest) live in their own container so they can be toggled on/off as a
+// detail layer rather than selected as regions.
+export const POPS_ID = "Pops";
+
+// Serif exports gradient/def nodes with ids like "_Linear12" / "_Radial3".
+// They are never selectable regions.
+export function isDefId(id: string): boolean {
+  return /^_/.test(id);
+}
 
 // Turn a raw id (e.g. "Varro1", "Kiran-Republic", "middle-world") into a clean
 // display name. Mirrors the normalization used to build the region inventory:

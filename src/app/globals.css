@@ -148,6 +148,11 @@ body {
   filter: brightness(1.5) saturate(1.2)
     drop-shadow(0 0 14px var(--accent, #4da6ff));
 }
+/* "Show Pops" toggle: hide the populations detail layer (planets, settlements,
+   corporate sites, etc.). */
+.gx-canvas.gx-hide-pops [id="Pops"] {
+  display: none;
+}
 
 /* Accessible focus ring on the accent color. */
 :where(a, button):focus-visible {
