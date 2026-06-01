@@ -40,7 +40,7 @@ function isDistrictGroup(el: Element): boolean {
 
 // True when a group contains a deeper selectable layer (an arm has provinces, a
 // province has districts). Drives the "click again to go deeper" hint.
-function hasSelectableChild(el: SVGGElement): boolean {
+function hasSelectableChild(el: SVGGraphicsElement): boolean {
   for (const g of Array.from(el.querySelectorAll("g"))) {
     if (g === el) continue;
     if (
@@ -111,7 +111,7 @@ function isInsidePops(el: Element, root: SVGSVGElement): boolean {
   return false;
 }
 
-function regionForGroup(g: SVGGElement): GalaxyRegion {
+function regionForGroup(g: SVGGraphicsElement): GalaxyRegion {
   const serif = g.getAttribute("serif:id");
   const raw = serif && serif.trim() ? serif.trim() : g.id;
   // Districts carry placeholder labels until the canon names them. Numbered
@@ -127,7 +127,7 @@ function regionForGroup(g: SVGGElement): GalaxyRegion {
 // dimming each level's *other* children leaves only its branch lit, regardless
 // of how loosely paths/wrappers are nested. Opacity composes predictably
 // through the SVG tree, so this stays reliable where stacked filters did not.
-function focusOnArm(arm: SVGGElement, root: SVGSVGElement) {
+function focusOnArm(arm: SVGGraphicsElement, root: SVGSVGElement) {
   root.querySelectorAll(".gx-dim").forEach((e) => e.classList.remove("gx-dim"));
   let node: Element = arm;
   let parent: Element | null = arm.parentElement;
@@ -221,7 +221,8 @@ export default function GalaxyMap() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const hoveredRef = useRef<SVGGElement | null>(null);
   // The active drill chain, outermost -> innermost: [arm, province?, district?].
-  const drillRef = useRef<SVGGElement[]>([]);
+  // Widened to SVGGraphicsElement so it can also hold a bare path (e.g. Earth).
+  const drillRef = useRef<SVGGraphicsElement[]>([]);
   const regionMapRef = useRef<Map<string, Found>>(new Map());
 
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
@@ -241,7 +242,10 @@ export default function GalaxyMap() {
   // Measuring the element against the svg's own rect makes the fractions
   // transform-invariant, so each call recomputes one absolute transform and the
   // CSS transition animates cleanly from wherever the map currently sits.
-  function zoomTo(el: SVGGElement) {
+  function zoomTo(
+    el: SVGGraphicsElement,
+    opts?: { fill?: number; maxScale?: number; minScale?: number },
+  ) {
     const svg = svgRef.current;
     if (!svg) return;
     const sr = svg.getBoundingClientRect();
@@ -251,9 +255,12 @@ export default function GalaxyMap() {
     const cy = (er.top + er.height / 2 - sr.top) / sr.height;
     const fracW = er.width / sr.width;
     const fracH = er.height / sr.height;
-    // Fill ~55% of the view with the region, but keep the zoom gentle.
-    let scale = 0.55 / Math.max(fracW, fracH, 0.001);
-    scale = Math.max(1.3, Math.min(scale, 2.4));
+    // Fill ~55% of the view with the region, but keep the zoom gentle. A tiny
+    // target (like Earth) can ask for a tighter fill and a higher cap so it
+    // becomes findable instead of staying a speck.
+    const fill = opts?.fill ?? 0.55;
+    let scale = fill / Math.max(fracW, fracH, 0.001);
+    scale = Math.max(opts?.minScale ?? 1.3, Math.min(scale, opts?.maxScale ?? 2.4));
     const tx = (0.5 - cx * scale) * 100;
     const ty = (0.5 - cy * scale) * 100;
     svg.style.transform = `translate(${tx}%, ${ty}%) scale(${scale})`;
@@ -263,7 +270,7 @@ export default function GalaxyMap() {
   // soft wash; the deepest pick beyond the arm glows. Everything outside the
   // deepest pick's branch fades. One function now drives all of arm / province /
   // district selection, so the depth is just how far the chain is sliced.
-  function selectChain(chain: SVGGElement[], levels: number) {
+  function selectChain(chain: SVGGraphicsElement[], levels: number) {
     const svg = svgRef.current;
     const sel = chain.slice(0, Math.max(1, levels));
     const deepest = sel[sel.length - 1];
@@ -301,6 +308,32 @@ export default function GalaxyMap() {
     setCanDrill(false);
     setDepth(1);
     zoomTo(el);
+  }
+
+  // "Where is Earth?": Earth is a single tiny path tucked inside Magna Mater.
+  // Light it, fade the rest, and zoom in tight enough that the speck becomes
+  // findable. Tracked in the drill chain so Reset/empty-click clears it too.
+  function whereIsEarth() {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const earth = svg.querySelector("#Earth");
+    if (!(earth instanceof SVGGraphicsElement)) return;
+    for (const e of drillRef.current) {
+      e.classList.remove("gx-arm", "gx-selected");
+    }
+    hostRef.current?.classList.add("gx-focusing");
+    focusOnArm(earth, svg);
+    earth.classList.add("gx-selected");
+    drillRef.current = [earth];
+    setSelected({
+      name: "Earth",
+      kind: "Homeworld",
+      description:
+        "Humanity's cradle, a quiet world far out on the Magna Mater arm.",
+    });
+    setCanDrill(false);
+    setDepth(1);
+    zoomTo(earth, { fill: 0.32, maxScale: 6 });
   }
 
   // Zoom back out and clear the selection — the "reverse" of selecting. Wired to
@@ -576,6 +609,30 @@ export default function GalaxyMap() {
                 <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
               </svg>
             )}
+          </button>
+        )}
+
+        {status === "ready" && (
+          <button
+            type="button"
+            onClick={whereIsEarth}
+            title="Find Earth on the map"
+            className="absolute bottom-3 left-3 z-10 flex h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-black/40 px-3 text-xs font-medium text-white/90 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+            </svg>
+            Where is Earth?
           </button>
         )}
       </div>
