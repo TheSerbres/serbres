@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { asset } from "@/lib/site";
 import {
   CATEGORY_CONTAINER,
+  cleanRegionName,
   isSelectableRegion,
   resolveRegion,
   type GalaxyRegion,
@@ -16,9 +17,46 @@ type Found = {
   category: RegionCategory;
 };
 
+// A "Districts" wrapper bundles the district pieces inside a province. It is
+// never selectable itself, but its direct <g> children ARE the districts.
+function isDistrictsWrapper(el: Element | null): boolean {
+  if (!(el instanceof SVGGElement)) return false;
+  const serif = el.getAttribute("serif:id");
+  const label = serif && serif.trim() ? serif.trim() : el.id;
+  return label === "Districts" || /^Districts\d*$/.test(label);
+}
+
+// A district is a direct <g> child of a Districts wrapper (e.g. Varro's "1" and
+// "Capital"). These sit one level below a province and become the deepest
+// drillable layer. Pops/Blank markers nested deeper still aren't districts,
+// because their parent is the district, not the wrapper.
+function isDistrictGroup(el: Element): boolean {
+  return (
+    el instanceof SVGGElement &&
+    el.id !== "" &&
+    isDistrictsWrapper(el.parentElement)
+  );
+}
+
+// True when a group contains a deeper selectable layer (an arm has provinces, a
+// province has districts). Drives the "click again to go deeper" hint.
+function hasSelectableChild(el: SVGGElement): boolean {
+  for (const g of Array.from(el.querySelectorAll("g"))) {
+    if (g === el) continue;
+    if (
+      isSelectableRegion(g.id, g.getAttribute("serif:id")) ||
+      isDistrictGroup(g)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Selectable region groups are <g> elements with an `id` that isn't one of the
-// structural wrappers. Collect them from an event target up to the svg root,
-// ordered innermost (province) -> outermost (arm).
+// structural wrappers, plus the district groups inside a Districts wrapper.
+// Collect them from an event target up to the svg root, ordered innermost
+// (district) -> outermost (arm).
 function ancestorGroups(
   target: EventTarget | null,
   root: SVGSVGElement,
@@ -28,7 +66,8 @@ function ancestorGroups(
   while (el && el !== root) {
     if (
       el instanceof SVGGElement &&
-      isSelectableRegion(el.id, el.getAttribute("serif:id"))
+      (isSelectableRegion(el.id, el.getAttribute("serif:id")) ||
+        isDistrictGroup(el))
     ) {
       out.push(el);
     }
@@ -43,12 +82,6 @@ function innermostGroup(
   root: SVGSVGElement,
 ): SVGGElement | null {
   return ancestorGroups(target, root)[0] ?? null;
-}
-
-// The outermost selectable group containing an element (its "arm").
-function armOf(el: SVGGElement, root: SVGSVGElement): SVGGElement {
-  const chain = ancestorGroups(el, root);
-  return chain[chain.length - 1] ?? el;
 }
 
 // Decide which category a shape belongs to by walking up to the first
@@ -80,7 +113,14 @@ function isInsidePops(el: Element, root: SVGSVGElement): boolean {
 
 function regionForGroup(g: SVGGElement): GalaxyRegion {
   const serif = g.getAttribute("serif:id");
-  return resolveRegion(serif && serif.trim() ? serif.trim() : g.id);
+  const raw = serif && serif.trim() ? serif.trim() : g.id;
+  // Districts carry placeholder labels until the canon names them. Numbered
+  // pieces read as "District N"; named ones (e.g. "Capital") keep their name.
+  if (isDistrictGroup(g)) {
+    const name = /^\d+$/.test(raw) ? `District ${raw}` : cleanRegionName(raw);
+    return { name, kind: "District", description: "" };
+  }
+  return resolveRegion(raw);
 }
 
 // Fade everything that doesn't contain the active shape. Walking up from it and
@@ -180,8 +220,8 @@ export default function GalaxyMap() {
   const hostRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const hoveredRef = useRef<SVGGElement | null>(null);
-  const armElRef = useRef<SVGGElement | null>(null);
-  const provinceElRef = useRef<SVGGElement | null>(null);
+  // The active drill chain, outermost -> innermost: [arm, province?, district?].
+  const drillRef = useRef<SVGGElement[]>([]);
   const regionMapRef = useRef<Map<string, Found>>(new Map());
 
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
@@ -189,6 +229,9 @@ export default function GalaxyMap() {
   );
   const [selected, setSelected] = useState<GalaxyRegion | null>(null);
   const [canDrill, setCanDrill] = useState(false);
+  // How many levels deep the current selection is (1 = arm, 2 = province,
+  // 3 = district). Used to word the "drill deeper" hint correctly.
+  const [depth, setDepth] = useState(0);
   const [lands, setLands] = useState<Found[]>([]);
   const [abyss, setAbyss] = useState<Found[]>([]);
   const [showPops, setShowPops] = useState(true);
@@ -216,39 +259,48 @@ export default function GalaxyMap() {
     svg.style.transform = `translate(${tx}%, ${ty}%) scale(${scale})`;
   }
 
-  // Light a whole shape. `full` swaps the soft ~50% wash for a full highlight
-  // (used for the second click on an arm, or any single-click abyss shape).
-  function selectArm(arm: SVGGElement, full: boolean) {
+  // Light a drill chain (outer -> inner) up to `levels` deep. The arm gets the
+  // soft wash; the deepest pick beyond the arm glows. Everything outside the
+  // deepest pick's branch fades. One function now drives all of arm / province /
+  // district selection, so the depth is just how far the chain is sliced.
+  function selectChain(chain: SVGGElement[], levels: number) {
     const svg = svgRef.current;
+    const sel = chain.slice(0, Math.max(1, levels));
+    const deepest = sel[sel.length - 1];
+
+    // Drop highlight classes from anything no longer in the active chain.
+    for (const el of drillRef.current) {
+      if (!sel.includes(el)) el.classList.remove("gx-arm", "gx-selected");
+    }
+    sel.forEach((el) => el.classList.remove("gx-arm", "gx-selected"));
+
     hostRef.current?.classList.add("gx-focusing");
-    if (svg) focusOnArm(arm, svg);
-    if (armElRef.current && armElRef.current !== arm) {
-      armElRef.current.classList.remove("gx-arm", "gx-selected");
-    }
-    if (provinceElRef.current && provinceElRef.current !== arm) {
-      provinceElRef.current.classList.remove("gx-selected");
-    }
-    provinceElRef.current = full ? arm : null;
-    armElRef.current = arm;
-    arm.classList.remove("gx-arm", "gx-selected");
-    arm.classList.add(full ? "gx-selected" : "gx-arm");
-    setSelected(regionForGroup(arm));
-    zoomTo(arm);
+    if (svg) focusOnArm(deepest, svg);
+
+    sel[0].classList.add("gx-arm");
+    if (sel.length >= 2) deepest.classList.add("gx-selected");
+
+    drillRef.current = sel;
+    setSelected(regionForGroup(deepest));
+    setCanDrill(hasSelectableChild(deepest));
+    setDepth(sel.length);
+    zoomTo(deepest);
   }
 
-  // Highlight a single province inside the currently-lit arm.
-  function selectProvince(prov: SVGGElement) {
-    if (
-      provinceElRef.current &&
-      provinceElRef.current !== prov &&
-      provinceElRef.current !== armElRef.current
-    ) {
-      provinceElRef.current.classList.remove("gx-selected");
+  // Abyss shapes are single-click: just light and zoom the clicked shape.
+  function selectAbyss(el: SVGGElement) {
+    const svg = svgRef.current;
+    for (const e of drillRef.current) {
+      e.classList.remove("gx-arm", "gx-selected");
     }
-    prov.classList.add("gx-selected");
-    provinceElRef.current = prov;
-    setSelected(regionForGroup(prov));
-    zoomTo(prov);
+    hostRef.current?.classList.add("gx-focusing");
+    if (svg) focusOnArm(el, svg);
+    el.classList.add("gx-selected");
+    drillRef.current = [el];
+    setSelected(regionForGroup(el));
+    setCanDrill(false);
+    setDepth(1);
+    zoomTo(el);
   }
 
   // Zoom back out and clear the selection — the "reverse" of selecting. Wired to
@@ -261,13 +313,14 @@ export default function GalaxyMap() {
         e.classList.remove("gx-dim"),
       );
     }
-    armElRef.current?.classList.remove("gx-arm", "gx-selected");
-    provinceElRef.current?.classList.remove("gx-selected");
-    armElRef.current = null;
-    provinceElRef.current = null;
+    for (const el of drillRef.current) {
+      el.classList.remove("gx-arm", "gx-selected");
+    }
+    drillRef.current = [];
     hostRef.current?.classList.remove("gx-focusing");
     setSelected(null);
     setCanDrill(false);
+    setDepth(0);
   }
 
   useEffect(() => {
@@ -381,27 +434,30 @@ export default function GalaxyMap() {
         resetView();
         return;
       }
-      const province = groups[0];
-      const arm = groups[groups.length - 1];
 
       // Abyss shapes are single-click: highlight just the clicked shape.
-      if (categoryOf(province, svg) === "abyss") {
-        selectArm(province, true);
-        setCanDrill(false);
+      if (categoryOf(groups[0], svg) === "abyss") {
+        selectAbyss(groups[0]);
         return;
       }
 
-      // Lands keep the two-stage arm -> province drill.
-      if (arm !== armElRef.current) {
-        selectArm(arm, false);
-        setCanDrill(province !== arm);
-      } else if (province === arm) {
-        selectArm(arm, true);
-        setCanDrill(false);
-      } else {
-        selectProvince(province);
-        setCanDrill(false);
+      // Lands drill progressively: arm -> province -> district. `chain` is the
+      // clicked path outermost -> innermost. Each click advances one level past
+      // what the current selection already shares with that path, so the first
+      // click lights the arm, the next the province, the next the district —
+      // and clicking a sibling at any level switches to it.
+      const chain = groups.slice().reverse();
+      const drill = drillRef.current;
+      let common = 0;
+      while (
+        common < drill.length &&
+        common < chain.length &&
+        drill[common] === chain[common]
+      ) {
+        common++;
       }
+      const levels = Math.min(common + 1, chain.length);
+      selectChain(chain, levels);
     };
 
     svg.addEventListener("pointermove", onMove);
@@ -415,23 +471,17 @@ export default function GalaxyMap() {
   }, [status]);
 
   // Jump straight to a shape from a list. Abyss shapes are a single full
-  // highlight; lands light the arm (and province, when the shape is nested).
+  // highlight; lands select their full chain down to the picked shape.
   function selectFound(f: Found) {
     const svg = svgRef.current;
     if (!svg) return;
     const el = f.el;
     if (f.category === "abyss") {
-      selectArm(el, true);
+      selectAbyss(el);
     } else {
-      const arm = armOf(el, svg);
-      if (el === arm) {
-        selectArm(arm, true);
-      } else {
-        selectArm(arm, false);
-        selectProvince(el);
-      }
+      const chain = ancestorGroups(el, svg).reverse();
+      if (chain.length) selectChain(chain, chain.length);
     }
-    setCanDrill(false);
     el.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
@@ -545,7 +595,9 @@ export default function GalaxyMap() {
               </p>
               {canDrill && (
                 <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.15em] text-accent/80">
-                  Click again inside the arm to highlight a province.
+                  {depth >= 2
+                    ? "Click again to highlight a district."
+                    : "Click again inside the arm to highlight a province."}
                 </p>
               )}
             </>
@@ -558,8 +610,9 @@ export default function GalaxyMap() {
                 Explore the galaxy
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-muted">
-                Click an arm to light it up, then click again inside it to
-                highlight a province. Abyss shapes select with a single click.
+                Click an arm to light it up, then click again to drill in:
+                arm → province → district. Abyss shapes select with a single
+                click.
               </p>
             </>
           )}
