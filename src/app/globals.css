@@ -170,9 +170,23 @@ body {
     radial-gradient(1px 1px at 70% 88%, rgba(207, 224, 255, 0.7), transparent);
 }
 
-/* Lift the disk into a luminous, higher-contrast read. */
+/* Gently saturate the whole disk so the arms read as luminous gas. */
 .gx-stage .gx-canvas svg {
-  filter: brightness(0.9) contrast(1.34) saturate(1.5);
+  filter: saturate(1.15);
+}
+
+/* The Abyss is the bright "white sphere" (a raster) plus its vector shapes
+   (Animus, etc.). Sink the whole group into deep space so it reads as the dark
+   void between the arms instead of a white disk. The Lands arms are a separate
+   sibling painted on top, so they keep their color. */
+.gx-stage .gx-canvas svg #Abyss {
+  filter: brightness(0.12) saturate(0.5);
+}
+/* A selected Abyss shape must still light up despite the group dimming, so
+   over-brighten it enough to punch back through the 0.12 group filter. */
+.gx-stage .gx-canvas svg #Abyss .gx-selected {
+  filter: brightness(6) saturate(1.4)
+    drop-shadow(0 0 14px var(--accent, #4da6ff));
 }
 
 /* Core bloom + rim vignette, over the map. */
