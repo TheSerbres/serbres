@@ -12,7 +12,19 @@ export const EXCLUDE_IDS = new Set([
   "Not",
   "Raids",
   "Pops",
+  // Structural wrappers in the current export: Lands > Shapes > {arms,
+  // political}; Abyss > Voids. None are places.
+  "Shapes",
+  "Voids",
+  "arms",
+  "political",
 ]);
+
+// Structural container ids, including the numbered duplicates Serif emits
+// (e.g. "Abyss1", "Pops64", "Layer3"). Matched on both the id and the clean
+// serif label so an outer "Abyss1" carrying serif:id="Abyss" is caught too.
+const STRUCTURAL_CONTAINER =
+  /^(Lands|Abyss|Shapes|Voids|Layer|Pops|Not|Raids|arms|political)\d*$/;
 
 // The two top-level shape categories. Lands are the galaxy's arms (and the
 // provinces nested within them); the Abyss is the space between and beyond the
@@ -89,7 +101,9 @@ export function isSelectableRegion(
   if (!id) return false;
   if (EXCLUDE_IDS.has(id) || isDefId(id)) return false;
   if (GROUPING_IDS.has(id)) return false;
+  if (STRUCTURAL_CONTAINER.test(id)) return false;
   const label = serifId && serifId.trim() ? serifId.trim() : id;
+  if (EXCLUDE_IDS.has(label) || STRUCTURAL_CONTAINER.test(label)) return false;
   if (isStructuralLabel(label)) return false;
   if (isGroupingLabel(label)) return false;
   return true;

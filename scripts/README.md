@@ -1,32 +1,35 @@
-# Galaxy map — arms image alignment
+# Galaxy map asset pipeline
 
-The interactive map (`public/arbitrary-life/galaxy.svg`) is a shapes-only export
-from the canonical Affinity doc. The painted galaxy **arms image** lives in a
-separate export, `Interactive-Map.overlay.svg`, which carries both the raster
-*and* the shapes already aligned. These one-off scripts transfer that image onto
-`galaxy.svg`'s coordinate space so the political regions sit exactly over their
-arms. They are NOT part of the build — run them only to regenerate the asset.
+The interactive map renders `public/arbitrary-life/galaxy.svg`. That file is a
+**generated artifact** — never hand-edit it. It is produced from the canonical
+Affinity export (`Interactive-Map.svg`, ~27 MB), which embeds the painted galaxy
+arms raster inline alongside the vector regions, already aligned.
 
-## Pipeline
+## `build-galaxy.mjs`
 
-1. **`extract-arms.mjs`** — pulls the `_Image1` arms raster out of the overlay to
-   `public/arbitrary-life/galaxy-arms.png`, and writes a light, shapes-only copy
-   of the overlay (`public/_tmp/overlay-shapes.svg`) for measurement.
+Externalizes the one big raster (`_Image1`, ~19 MB base64) to
+`public/arbitrary-life/galaxy-arms.jpg` and repoints its `href`, leaving every
+coordinate untouched. This drops the SVG from ~27 MB to ~1.4 MB while keeping the
+regions pixel-aligned with the galaxy **by construction** — the image and the
+shapes come from the same document, so no transform math is needed. The ~37 tiny
+icon rasters stay inline.
 
-2. **Measure correspondences (browser).** With `npm run dev` up, load both SVGs
-   offscreen and record each region's transform-resolved centre (compose
-   `getScreenCTM`) in viewBox units, for every `id` present in both files.
+```
+node scripts/build-galaxy.mjs        # writes galaxy.svg + full-res galaxy-arms.png
+# then downscale the PNG to the JPEG the SVG references (Windows / System.Drawing):
+#   3000px wide, q85  ->  galaxy-arms.jpg (~0.8 MB), and delete the PNG
+```
 
-3. **`solve-affine.mjs`** — least-squares affine `overlay → galaxy` over those
-   centres (the two exports differ by ~4° rotation + scale + translation), with
-   big-group outliers trimmed. Composes it with the overlay's image matrix to get
-   the placement matrix used on the injected `<image id="gx-arms">` in
-   `src/components/GalaxyMap.tsx`. Inlier residual was ~4 units mean / ~7 max on a
-   6692-unit-wide canvas (sub-pixel at display size).
+The `<image>` box keeps its original pixel dimensions with
+`preserveAspectRatio` from the export, so the downscaled JPEG stretches into the
+same box and the placement is unchanged.
 
-4. **Downscale.** `galaxy-arms.png` (4608², ~19 MB) → `galaxy-arms.jpg` (3000²,
-   q85, ~0.8 MB). The `<image>` box stays 4608² with `preserveAspectRatio="none"`,
-   so the smaller raster stretches to the same box and the matrix is unchanged.
+Re-run after any re-export from Affinity. If a `BASE_PATH` is ever introduced
+(currently `""`), prefix the `HREF` constant in `build-galaxy.mjs` accordingly.
 
-If the artwork moves in Affinity, re-export the overlay, re-run steps 1–4, and
-update the matrix literal in `GalaxyMap.tsx`.
+## Interaction note
+
+Region classification lives in `src/lib/galaxy.ts`. The current export nests
+shapes as `Lands > Shapes > {arms, political}` and `Abyss > Voids`; the structural
+wrappers (`Shapes`, `Voids`, `arms`, `political`, and numbered duplicates like
+`Abyss1`) are excluded there so they are never selectable.
