@@ -169,11 +169,11 @@ function RegionTabs({
   ];
 
   return (
-    <div className="rounded-2xl border border-border bg-bg p-6">
+    <div className="al-panel p-6">
       <div
         role="tablist"
         aria-label="Region category"
-        className="flex gap-1 rounded-full border border-border bg-bg-elev p-1"
+        className="flex gap-1 rounded-sm border border-[color:rgb(var(--hud)/0.2)] bg-bg-elev p-1"
       >
         {tabs.map((t) => (
           <button
@@ -185,7 +185,7 @@ function RegionTabs({
               setTab(t.key);
               setQuery("");
             }}
-            className={`flex-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`al-tele flex-1 rounded-[2px] px-3 py-2 !text-[0.65rem] transition-colors ${
               tab === t.key
                 ? "bg-accent text-accent-fg"
                 : "text-muted hover:text-fg"
@@ -210,7 +210,7 @@ function RegionTabs({
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search…"
               aria-label={`Search ${tab}`}
-              className="w-full rounded-full border border-border bg-bg-elev px-4 py-2 text-xs text-fg placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              className="w-full rounded-sm border border-[color:rgb(var(--hud)/0.2)] bg-bg-elev px-4 py-2 text-xs text-fg placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
           {filtered.length > 0 ? (
@@ -220,10 +220,10 @@ function RegionTabs({
                   <button
                     type="button"
                     onClick={() => onSelect(f)}
-                    className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                    className={`rounded-[2px] border px-3 py-1 text-xs transition-colors ${
                       selectedName === f.region.name
                         ? "border-accent bg-accent text-accent-fg"
-                        : "border-border text-muted hover:border-accent hover:text-accent"
+                        : "border-[color:rgb(var(--hud)/0.22)] text-muted hover:border-accent hover:text-accent"
                     }`}
                   >
                     {f.region.name}
@@ -551,10 +551,8 @@ export default function GalaxyMap() {
       {/* Left column: a controls bar (legend + Pops toggle) above the map. */}
       <div className="flex flex-col gap-4">
         {status === "ready" && (
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-border bg-bg px-5 py-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-              Legend
-            </p>
+          <div className="al-panel flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
+            <p className="al-tele text-accent">Legend</p>
             <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
               <li
                 className="flex items-center gap-2"
@@ -611,20 +609,22 @@ export default function GalaxyMap() {
           className={
             expanded
               ? "gx-stage fixed inset-0 z-[70] flex items-center justify-center bg-[#010206] p-4 sm:p-8"
-              : "gx-stage relative overflow-hidden rounded-2xl border border-border bg-[#010206]"
+              : "gx-stage relative overflow-hidden rounded-[3px] border border-[color:rgb(var(--hud)/0.25)] bg-[#010206]"
           }
         >
         {/* Deep-space backdrop (shows through the disk's gaps). */}
         <div className="gx-stage-bg" aria-hidden="true" />
 
         {status === "loading" && (
-          <div className="flex aspect-[6692/5438] items-center justify-center text-sm text-muted">
-            Charting the galaxy…
+          <div className="flex aspect-[27884/22659] items-center justify-center">
+            <span className="al-tele al-live text-accent">
+              Acquiring chart&hellip;
+            </span>
           </div>
         )}
         {status === "error" && (
-          <div className="flex aspect-[6692/5438] items-center justify-center px-6 text-center text-sm text-muted">
-            The galaxy map could not be loaded. Please refresh to try again.
+          <div className="flex aspect-[27884/22659] items-center justify-center px-6 text-center text-sm text-muted">
+            Chart link lost. Refresh to re-establish the feed.
           </div>
         )}
         {/* React never renders children into this node, so it is safe to
@@ -637,13 +637,20 @@ export default function GalaxyMap() {
         {/* Core bloom + rim vignette over the map. */}
         <div className="gx-stage-glow" aria-hidden="true" />
 
+        {/* HUD corner brackets (sit inside the clipped stage). */}
+        {!expanded && (
+          <div className="al-corners" aria-hidden="true">
+            <i />
+          </div>
+        )}
+
         {status === "ready" && selected && (
           <button
             type="button"
             onClick={resetView}
             aria-label="Reset view"
             title="Reset view"
-            className="absolute left-3 top-3 z-10 flex h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-black/40 px-3 text-xs font-medium text-white/90 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
+            className="absolute left-3 top-3 z-10 flex h-9 items-center gap-1.5 rounded-[2px] border border-[color:rgb(var(--hud)/0.3)] bg-black/55 px-3 text-xs font-medium text-white/85 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
           >
             <svg
               viewBox="0 0 24 24"
@@ -657,7 +664,7 @@ export default function GalaxyMap() {
             >
               <path d="M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5" />
             </svg>
-            Reset
+            <span className="al-tele !text-[0.65rem] !tracking-[0.18em]">Reset</span>
           </button>
         )}
 
@@ -667,7 +674,7 @@ export default function GalaxyMap() {
             onClick={() => setExpanded((v) => !v)}
             aria-label={expanded ? "Exit fullscreen" : "Expand map to fullscreen"}
             title={expanded ? "Exit fullscreen (Esc)" : "Expand to fullscreen"}
-            className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-black/40 text-white/90 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
+            className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-[2px] border border-[color:rgb(var(--hud)/0.3)] bg-black/55 text-white/85 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
           >
             {expanded ? (
               <svg
@@ -704,7 +711,7 @@ export default function GalaxyMap() {
             type="button"
             onClick={whereIsEarth}
             title="Find Earth on the map"
-            className="absolute bottom-3 left-3 z-10 flex h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-black/40 px-3 text-xs font-medium text-white/90 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
+            className="absolute bottom-3 left-3 z-10 flex h-9 items-center gap-1.5 rounded-[2px] border border-[color:rgb(var(--hud)/0.3)] bg-black/55 px-3 text-xs font-medium text-white/85 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
           >
             <svg
               viewBox="0 0 24 24"
@@ -719,42 +726,41 @@ export default function GalaxyMap() {
               <circle cx="12" cy="12" r="9" />
               <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
             </svg>
-            Where is Earth?
+            <span className="al-tele !text-[0.65rem] !tracking-[0.18em]">
+              Where is Earth?
+            </span>
           </button>
         )}
         </div>
       </div>
 
       <aside className="flex flex-col gap-5">
-        <div className="rounded-2xl border border-border bg-bg p-6">
+        <div className="al-panel al-frame p-6">
+          <span className="al-frame-corners" aria-hidden="true" />
           {selected ? (
             <>
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-                {selected.kind}
-              </p>
-              <h3 className="mt-2 text-xl font-semibold tracking-tight">
+              <p className="al-tele text-accent">{selected.kind}</p>
+              <h3 className="al-display mt-2.5 text-xl tracking-tight">
                 {selected.name}
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted">
+              <p className="mt-3 text-sm leading-relaxed text-[color:rgb(var(--al-ink)/0.7)]">
                 {selected.description || "Lore for this region is coming soon."}
               </p>
               {canDrill && (
-                <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.15em] text-accent/80">
+                <p className="al-tele mt-4 !text-[0.6rem] text-accent/80">
                   {depth >= 2
-                    ? "Click again to highlight a district."
-                    : "Click again inside the arm to highlight a province."}
+                    ? "▸ Click again to highlight a district."
+                    : "▸ Click again to highlight a province."}
                 </p>
               )}
             </>
           ) : (
             <>
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-                Galaxy Map
-              </p>
-              <h3 className="mt-2 text-xl font-semibold tracking-tight">
+              <p className="al-tele text-accent">Galaxy Map</p>
+              <h3 className="al-display mt-2.5 text-xl tracking-tight">
                 Explore the galaxy
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted">
+              <p className="mt-3 text-sm leading-relaxed text-[color:rgb(var(--al-ink)/0.7)]">
                 Click an arm to light it up, then click again to drill in:
                 arm → province → district. Abyss shapes select with a single
                 click.
