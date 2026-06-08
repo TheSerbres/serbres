@@ -170,27 +170,39 @@ body {
     radial-gradient(1px 1px at 70% 88%, rgba(207, 224, 255, 0.7), transparent);
 }
 
-/* Gently saturate the whole disk so the arms read as luminous gas. The
-   transform (set in JS) smoothly zooms toward the selected region. */
+/* The painted galaxy-arms raster (#gx-arms, injected as the bottom layer) is
+   the visible galaxy. Keep it crisp; the transform (set in JS) smoothly zooms
+   toward the selected region and carries the whole map — photo included. */
 .gx-stage .gx-canvas svg {
-  filter: saturate(1.15);
+  filter: saturate(1.04);
   transform-origin: 0 0;
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
-/* The Abyss is the bright "white sphere" (a raster) plus its vector shapes
-   (Animus, etc.). Sink the whole group into deep space so it reads as the dark
-   void between the arms instead of a white disk. The Lands arms are a separate
-   sibling painted on top, so they keep their color. */
-.gx-stage .gx-canvas svg #Abyss {
-  filter: brightness(0.12) saturate(0.5);
+/* The political regions are translucent tints laid over the photo so the arms
+   show through; they intensify on hover and selection. fill/fill-opacity are
+   inherited SVG properties, so setting them on the container cascades to the
+   region paths, and the per-region drill classes override down the chain. */
+.gx-stage .gx-canvas svg #Lands {
+  fill-opacity: 0.4;
 }
-/* A selected Abyss shape must still light up despite the group dimming, so
-   over-brighten it enough to punch back through the 0.12 group filter. */
-.gx-stage .gx-canvas svg #Abyss .gx-selected {
-  filter: brightness(6) saturate(1.4)
-    drop-shadow(0 0 14px var(--accent, #4da6ff));
+.gx-stage .gx-canvas svg #Abyss {
+  fill-opacity: 0.34;
+}
+.gx-canvas svg #Lands path,
+.gx-canvas svg #Abyss path {
+  transition: fill-opacity 0.25s ease, filter 0.2s ease;
+}
+/* First click lights the arm; deeper picks and hovers push more opaque. */
+.gx-canvas .gx-arm {
+  fill-opacity: 0.62;
+}
+.gx-canvas .gx-hover {
+  fill-opacity: 0.72;
+}
+.gx-canvas .gx-selected {
+  fill-opacity: 0.95;
 }
 
 /* Core bloom + rim vignette, over the map. */
@@ -205,10 +217,10 @@ body {
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    24% 20% at 50% 49%,
-    rgba(255, 242, 214, 0.6),
-    rgba(255, 208, 150, 0.2) 45%,
-    transparent 72%
+    20% 17% at 50% 49%,
+    rgba(255, 240, 210, 0.28),
+    rgba(255, 205, 150, 0.1) 50%,
+    transparent 74%
   );
   mix-blend-mode: screen;
 }

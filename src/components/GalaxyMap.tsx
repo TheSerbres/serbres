@@ -408,6 +408,45 @@ export default function GalaxyMap() {
         svg.setAttribute("role", "img");
         svg.setAttribute("aria-label", "Map of the Arbitrary Life galaxy");
 
+        // Drop the painted galaxy arms (a raster from the canonical Affinity
+        // doc) in as the bottom layer so the vector regions sit exactly over
+        // their arms. The matrix maps the 4608² image into this SVG's
+        // coordinate space; it was solved as the affine between the overlay
+        // export (which carries the image) and this shapes export, so the photo
+        // lines up with the shapes and zooms/pans with them. See
+        // scripts/solve-affine.mjs.
+        if (!svg.querySelector("#gx-arms")) {
+          const SVGNS = "http://www.w3.org/2000/svg";
+          const XLINK = "http://www.w3.org/1999/xlink";
+          const arms = document.createElementNS(SVGNS, "image");
+          arms.id = "gx-arms";
+          arms.setAttribute("width", "4608");
+          arms.setAttribute("height", "4608");
+          arms.setAttribute("preserveAspectRatio", "none");
+          arms.setAttribute(
+            "transform",
+            "matrix(1.36833,0.1325,-0.11682,1.20362,495.42172,-308.86722)",
+          );
+          const armsHref = asset("/arbitrary-life/galaxy-arms.jpg");
+          arms.setAttributeNS(XLINK, "xlink:href", armsHref);
+          arms.setAttribute("href", armsHref);
+          svg.insertBefore(arms, svg.firstChild);
+
+          // The painted arms now ARE the galaxy, so retire the old Abyss
+          // "white sphere" raster (#_Image1) the design previously dimmed to
+          // black to fake the void. Hiding it lets the photo read; the Abyss
+          // vector shapes (Animus, etc.) stay selectable.
+          svg.querySelectorAll<SVGElement>("#Abyss use, #Abyss image").forEach(
+            (u) => {
+              const href =
+                u.getAttributeNS(XLINK, "href") || u.getAttribute("href") || "";
+              if (href === "#_Image1" || u.id === "_Image1") {
+                u.style.display = "none";
+              }
+            },
+          );
+        }
+
         // Tag the populations detail layer so the "Show Pops" toggle can hide
         // it. Pops are scattered as per-holding layers (serif:id="Pops"), not a
         // single container.
